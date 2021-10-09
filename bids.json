@@ -1,0 +1,19 @@
+{
+  "bids": [
+    {
+      "asset_contract_address": "0xf6c771b9cfefdd725495820f219211441855b35c",
+      "token_id": "2722",
+      "bid_value": "333"
+    },
+    {
+      "asset_contract_address": "0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb",
+      "token_id": "1",
+      "bid_value": "333"
+    },
+    {
+      "asset_contract_address": "0x91f3114f8818ade506d0901a44982dc5c020c99b",
+      "token_id": "2457",
+      "bid_value": "333"
+    }
+  ]
+}
