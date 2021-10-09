@@ -4,6 +4,7 @@ from dash import dcc
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 from app import app
+from app import server
 from apps import (
     home,
     marketplace,
