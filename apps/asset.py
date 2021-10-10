@@ -4,12 +4,11 @@ import dash
 import json
 from dash import html
 import dash_bootstrap_components as dbc
+from dash import dcc
 from dash.dependencies import Input, Output, State
+from urllib.parse import urlparse, parse_qsl, urlencode
 
 from app import app
-
-asset_contract_address = '0xa2480eb41dd1f2b0abade9f305826c544d47f696'
-token_id = '6771'
 
 
 def get_single_asset(asset_contract_address, token_id):
@@ -22,41 +21,6 @@ def get_single_asset(asset_contract_address, token_id):
     # col_list = ['id', 'token_id', 'asset_contract.address', 'image_url', 'name']
     df = pd.DataFrame(df)  # , columns=col_list)
     return df
-
-
-# get_single_asset('0xf43aaa80a8f9de69bc71aea989afceb8db7b690f', '7799')
-asset = get_single_asset(asset_contract_address, token_id)
-
-list_group = dbc.ListGroup(
-    [
-        dbc.ListGroupItem(
-            [
-                dbc.ListGroupItemHeading(asset['name']),
-                dbc.ListGroupItemText(asset['token_id']),
-            ],
-
-        ),
-        dbc.ListGroupItem(
-            [
-                dbc.ListGroupItemHeading('price'),
-                dbc.ListGroupItemText('0.003 ETH'),
-            ],
-
-        ),
-    ],
-    horizontal="lg",
-)
-
-card = dbc.Card(
-    dbc.CardBody(
-        [
-            list_group,
-            dbc.Button("Place a bid", id="open", n_clicks=0, color="dark"),
-        ]
-    ),
-    style={"width": "18rem"},
-    className="border-light",
-)
 
 
 def accordion_desc(i):
@@ -114,7 +78,6 @@ def accordion_details(i):
 
 
 def make_item(i):
-    # we use this function to make the example items to avoid code duplication
     return dbc.Card(
         [
             dbc.CardHeader(
@@ -143,10 +106,9 @@ bid_window = dbc.Modal(
         dbc.InputGroup(
             [
                 dbc.Input(placeholder="Amount", type="number"),
-                dbc.InputGroupAddon(".00", addon_type="append"),
+                dbc.InputGroupAddon("ETH", addon_type="append"),
             ],
         ),
-        dbc.Input(id="input", placeholder="place big in ETH", type="number"),
         dbc.ModalFooter(
             dbc.Button(
                 "Confirm", id="close", className="ml-auto", n_clicks=0
@@ -158,10 +120,60 @@ bid_window = dbc.Modal(
 )
 
 
-def create_layout(app):
+def create_layout(url_query):
+    # get asset corresponding to the ones the user clicked on earlier
+    asset_contract_address = url_query['asset_contract_address']
+    token_id = url_query['token_id']
+    dcc.Location(id='url', refresh=False),
+    asset = get_single_asset(asset_contract_address, token_id)
+    # print(asset.columns)
+
+    list_group = dbc.ListGroup(
+        [
+            dbc.ListGroupItem(
+                [
+                    dbc.ListGroupItemHeading(asset['name']),
+                    dbc.ListGroupItemText(asset['token_id']),
+                ],
+
+            ),
+            dbc.ListGroupItem(
+                [
+                    dbc.ListGroupItemHeading('price'),
+                    dbc.ListGroupItemText('0.003 ETH'),
+                ],
+
+            ),
+            dbc.ListGroupItem(
+                [
+                    dbc.ListGroupItemHeading('Save', id="tooltip-favourites"),
+                    dbc.ListGroupItemText('<3'),
+                ],
+
+            ),
+            dbc.Tooltip(
+                "You can find a list of your saved assets on your profile",
+                target="tooltip-favourites",
+            ),
+        ],
+        horizontal="lg",
+    )
+
+    card = dbc.Card(
+        dbc.CardBody(
+            [
+                list_group,
+                dbc.Button("Place a bid", id="open", n_clicks=0, color="dark"),
+            ]
+        ),
+        # style={"width": "18rem"},
+        className="border-light",
+    )
+
     return html.Div(
         children=[
             # HEADER
+            html.Div(id='url_path'),
             html.Div(
                 children=[
                     # html.H1('NFT', id='header-text'),
@@ -170,9 +182,19 @@ def create_layout(app):
             ),
             # INFO
             html.Div(id="content"),
-            html.Div(html.Img(src='{img_url}'.format(img_url=asset['image_url'])),
-                     className="NFT-src"),
-            card,
+
+            html.Div(
+                [
+                    dbc.Row(
+                        [
+                            dbc.Col(html.Div(html.Div(html.Img(src='{img_url}'.format(img_url=asset['image_url'][0])),
+                                                      className="NFT-src"))),
+                            dbc.Col(html.Div(card)),
+                        ]
+                    ),
+                ]
+            ),
+
             bid_window,
 
             html.Div(

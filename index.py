@@ -3,6 +3,7 @@ from dash import html
 from dash import dcc
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
+from urllib.parse import urlparse, parse_qsl, urlencode
 from app import app
 from app import server
 from apps import (
@@ -16,7 +17,6 @@ from apps import (
 
 from navbar import Navbar
 
-
 app.layout = html.Div([
     dcc.Location(id="url", refresh=False),
     Navbar(),
@@ -28,14 +28,19 @@ app.layout = html.Div([
 
 # Update page when navbar is used
 @app.callback(Output("main-content", "children"),
-              [Input("url", "pathname")])
-def display_page(path_name):
+              [Input("url", "pathname"), Input("url", "href")])
+def display_page(path_name, path_href):
     if path_name == "/marketplace":
         return marketplace.create_layout(app)
     elif path_name == "/collections":
         return nft_collections.create_layout(app)
-    elif path_name == "/asset":
-        return asset.create_layout(app)
+    elif path_name.startswith("/asset"):
+        parse_result = urlparse(path_href)
+        #print(parse_result)
+        params = parse_qsl(parse_result.query)
+        state = dict(params)
+        #print(state)
+        return asset.create_layout(state)
     elif path_name == "/profile":
         return profile.create_layout(app)
     elif path_name == "/upload":

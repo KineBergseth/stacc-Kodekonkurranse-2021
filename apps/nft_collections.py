@@ -16,13 +16,13 @@ def get_collection(offset, slug):
     response = requests.request("GET", url, params=querystring)
     data = response.json()
     df = pd.json_normalize(data['assets'])
-    col_list = ['id', 'token_id', 'image_url', 'name']
+    col_list = ['id', 'token_id', 'image_url', 'name', 'asset_contract.address']
     df = pd.DataFrame(df, columns=col_list)
     # print(df)
     return df
 
 
-def create_card(card_img, card_collection, card_title, card_price):
+def create_card(card_img, card_collection, card_title, card_price, token_id, asset_contract_address):
     return dbc.Card(
         [
             dbc.CardImg(src=card_img, top=True),
@@ -45,7 +45,7 @@ def create_cardgrid(offset, slug):
     data = get_collection(offset, slug)
     cards = []
     for item in data.index:
-        cards.append(create_card(data['image_url'][item], 'collection', data['name'][item], 'price'))
+        cards.append(create_card(data['image_url'][item], 'collection', data['name'][item], 'price', data['token_id'][item], data['asset_contract.address'][item]))
     return html.Div(dbc.CardColumns(cards, className="col_card_grid"), className='col_box')
 
 

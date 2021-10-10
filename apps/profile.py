@@ -8,6 +8,7 @@ import dash_bootstrap_components as dbc
 from dash import dash_table
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
+import random
 
 from app import app
 
@@ -44,11 +45,11 @@ def generate_table(data):
         columns=[
             {"id": "image_url", "name": "NFT", "presentation": "markdown"},
             {"id": "name", "name": "name"},
-            {"id": "token_id", "name": "Token id"},
+            {"id": "price", "name": "Current price/bid"},
         ],
         markdown_options={"html": True},
         sort_action='native',
-        style_cell={'textAlign': 'left'},
+        style_cell={'textAlign': 'left', "whiteSpace": "pre-line"},
         style_as_list_view=True,
     )
 
@@ -72,6 +73,11 @@ def get_NFTs(df):
     return df
 
 
+def random_bid_gen():
+    random_bid = random.randint(0, 40)
+    return random_bid
+
+
 def tab_favs():
     f = open('favourites.json', )
     fav_data = json.load(f)
@@ -86,16 +92,23 @@ def tab_bids():
     df_bid = pd.DataFrame(bid_data['bids'])
     df = get_NFTs(df_bid)
     result = pd.merge(df, df_bid)
-    return generate_table(df)
+    return generate_table(result)
 
 
+# \n for linjeskift "your bid is \n X ETH
 def tab_uploads():
     f = open('uploads.json', )
     uploaded_data = json.load(f)
     df_uploads = pd.DataFrame(uploaded_data['uploaded_nfts'])
     col_list = ['id', 'token_id', 'asset_contract.address', 'image_url', 'name']
     df = pd.DataFrame(df_uploads, columns=col_list)
-    #print(df)
+    df['image_url'] = df['image_url'].apply(add_imgmarkdown)
+
+    # generate some random fictive bids for the users uploaded NFTs
+    fictive_bids = []
+    for row in df.index:
+        fictive_bids.append(random_bid_gen())
+    df['price'] = fictive_bids
     return generate_table(df)
 
 

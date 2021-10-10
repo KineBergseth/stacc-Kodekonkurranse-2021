@@ -65,7 +65,7 @@ cards = dbc.CardGroup(
                         "Upload your own NFTs, add metadata and list them for sale",
                         className="card-text",
                     ),
-                    dbc.CardLink("upload here", href="/asset?value=2457"),
+                    dbc.CardLink("upload here", href="/asset?asset_contract_address=0xa2480eb41dd1f2b0abade9f305826c544d47f696&token_id=6771"),
                 ]
             ),
             color="dark",
