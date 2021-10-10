@@ -16,20 +16,21 @@ def get_collection(offset, slug):
     response = requests.request("GET", url, params=querystring)
     data = response.json()
     df = pd.json_normalize(data['assets'])
-    col_list = ['id', 'token_id', 'image_url', 'name', 'asset_contract.address']
+    col_list = ['id', 'token_id', 'image_url', 'name', 'asset_contract.address', 'collection.name']
     df = pd.DataFrame(df, columns=col_list)
     # print(df)
     return df
 
 
 def create_card(card_img, card_collection, card_title, card_price, token_id, asset_contract_address):
+    asset_link = dbc.CardLink("{name}".format(name=card_title), href="/asset?asset_contract_address={address}&token_id={token_id}".format(address=asset_contract_address, token_id=token_id))
     return dbc.Card(
         [
             dbc.CardImg(src=card_img, top=True),
             dbc.CardBody(
                 [
+                    html.H4(asset_link, className="card-title"),
                     html.P(card_collection, className="card-collection"),
-                    html.H4(card_title, className="card-title"),
                     html.P(card_price, className="card-price"),
                 ],
                 className="asset_cardbody",
@@ -45,7 +46,7 @@ def create_cardgrid(offset, slug):
     data = get_collection(offset, slug)
     cards = []
     for item in data.index:
-        cards.append(create_card(data['image_url'][item], 'collection', data['name'][item], 'price', data['token_id'][item], data['asset_contract.address'][item]))
+        cards.append(create_card(data['image_url'][item], data['collection.name'][item], data['name'][item], 'price', data['token_id'][item], data['asset_contract.address'][item]))
     return html.Div(dbc.CardColumns(cards, className="col_card_grid"), className='col_box')
 
 
