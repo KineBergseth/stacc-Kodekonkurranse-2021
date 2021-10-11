@@ -31,7 +31,7 @@ def convert_snake(snake_case):
     return snake_case.replace("_", " ").title()
 
 controls = [
-    dbc.FormGroup(
+    html.Div(
         [
             dbc.Label("Collection"),
             dbc.Select(
@@ -44,7 +44,7 @@ controls = [
             ),
         ]
     ),
-    dbc.FormGroup(
+    html.Div(
         [
             dbc.Label("Sort by"),
             dbc.Select(
@@ -57,7 +57,7 @@ controls = [
             ),
         ]
     ),
-    dbc.FormGroup(
+    html.Div(
         [
             dbc.Label("Order"),
             dbc.RadioItems(
@@ -70,7 +70,7 @@ controls = [
             ),
         ]
     ),
-    dbc.FormGroup(
+    html.Div(
         [
             dbc.Label("Page"),
             html.Br(),
@@ -127,7 +127,7 @@ def create_card(card_img, card_collection, card_title, card_price, token_id, ass
         ],
         color="dark",
         inverse=True,
-        className="asset_card"
+        className="asset_card col"
     )
 
 
@@ -137,7 +137,7 @@ def create_cardgrid(data):
         cards.append(create_card(data['image_url'][item], data['name'][item], data['collection.name'][item],
                                  data['last_sale.total_price'][item], data['token_id'][item],
                                  data['asset_contract.address'][item]))
-    return dbc.CardColumns(cards)
+    return html.Div(cards, className="row row-cols-4")
 
 
 def create_layout(app):
@@ -151,7 +151,7 @@ def create_layout(app):
                 className="header",
             ),
             # CONTENT
-            dbc.Card(dbc.Row([dbc.Col(c) for c in controls], form=True), body=True),
+            dbc.Card(dbc.Row([dbc.Col(c) for c in controls]), body=True),
             html.Div(id="content"),
         ],
         className="main"
@@ -166,7 +166,7 @@ def create_layout(app):
     # page no.
 )
 def update_grid(collection, order_by, order_direction):
-    limit = 3
+    limit = 20
     page_no = 1
     offset = (page_no * limit) - limit
     collection = ""

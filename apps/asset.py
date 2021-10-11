@@ -112,7 +112,7 @@ bid_window = dbc.Modal(
         dbc.InputGroup(
             [
                 dbc.Input(id="bid_amount", placeholder="Amount", type="number"),
-                dbc.InputGroupAddon("ETH", addon_type="append"),
+                dbc.InputGroupText("ETH"),
             ],
         ),
         html.P(id="output_msg_bid"),
@@ -143,22 +143,22 @@ def create_layout(url_query):
         [
             dbc.ListGroupItem(
                 [
-                    dbc.ListGroupItemHeading(asset['name']),
-                    dbc.ListGroupItemText(asset['token_id']),
+                    html.H5(asset['name']),
+                    html.Small(asset['token_id']),
                 ],
 
             ),
             dbc.ListGroupItem(
                 [
-                    dbc.ListGroupItemHeading('price'),
-                    dbc.ListGroupItemText('0.003 ETH'),
+                    html.H5('price'),
+                    html.Small('0.003 ETH'),
                 ],
 
             ),
             dbc.ListGroupItem(
                 [
-                    dbc.ListGroupItemHeading('Save', id="tooltip-favourites"),
-                    dbc.ListGroupItemText(fav_btn),
+                    html.H5('Save', id="tooltip-favourites"),
+                    html.Div(fav_btn),
                 ],
 
             ),

@@ -37,7 +37,7 @@ def create_card(card_img, card_collection, card_title, token_id, asset_contract_
         ],
         color="dark",
         inverse=True,
-        className="asset_card card border-primary mb-3"
+        className="asset_card col"
     )
 
 
@@ -46,10 +46,10 @@ def create_cardgrid(offset, slug):
     cards = []
     for item in data.index:
         cards.append(create_card(data['image_url'][item], data['collection.name'][item], data['name'][item], data['token_id'][item], data['asset_contract.address'][item]))
-    return html.Div([html.H1(data['collection.name'][0]), dbc.CardColumns(cards, className="col_card_grid")], className='col_box')
+    return html.Div([html.H1(data['collection.name'][0]), html.Div(cards, className="col_card_grid row row-cols-4")], className='col_box')
 
 
-pagination = dbc.FormGroup(
+pagination = html.Div(
     [
         dbc.Label("Page"),
         html.Br(),

@@ -4,7 +4,7 @@ charset-normalizer==2.0.6
 click==8.0.1
 colorama==0.4.4
 dash==2.0.0
-dash-bootstrap-components==0.13.1
+dash-bootstrap-components==1.0.0rc1
 dash-core-components==2.0.0
 dash-html-components==2.0.0
 dash-table==5.0.0
