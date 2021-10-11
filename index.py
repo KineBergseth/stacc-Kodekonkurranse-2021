@@ -35,11 +35,10 @@ def display_page(path_name, path_href):
     elif path_name == "/collections":
         return nft_collections.create_layout(app)
     elif path_name.startswith("/asset"):
+        # get query string from url as dictionary
         parse_result = urlparse(path_href)
-        #print(parse_result)
         params = parse_qsl(parse_result.query)
         state = dict(params)
-        #print(state)
         return asset.create_layout(state)
     elif path_name == "/profile":
         return profile.create_layout(app)

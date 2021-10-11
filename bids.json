@@ -1,19 +1,19 @@
 {
-  "bids": [
-    {
-      "asset_contract_address": "0xf6c771b9cfefdd725495820f219211441855b35c",
-      "token_id": "2722",
-      "price": "333"
-    },
-    {
-      "asset_contract_address": "0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb",
-      "token_id": "1",
-      "price": "333"
-    },
-    {
-      "asset_contract_address": "0x91f3114f8818ade506d0901a44982dc5c020c99b",
-      "token_id": "2457",
-      "price": "333"
-    }
-  ]
+    "bids": [
+        {
+            "asset_contract_address": "0xa2480eb41dd1f2b0abade9f305826c544d47f696",
+            "token_id": "9964",
+            "price": "23"
+        },
+        {
+            "asset_contract_address": "0xce25e60a89f200b1fa40f6c313047ffe386992c3",
+            "token_id": "4359",
+            "price": "0.47"
+        },
+        {
+            "asset_contract_address": "0xa2480eb41dd1f2b0abade9f305826c544d47f696",
+            "token_id": "9964",
+            "price": "4"
+        }
+    ]
 }

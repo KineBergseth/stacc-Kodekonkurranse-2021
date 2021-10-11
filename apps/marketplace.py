@@ -153,8 +153,7 @@ def create_card(card_img, card_collection, card_title, card_price, token_id, ass
     )
 
 
-def create_cardgrid():
-    data = get_assets()
+def create_cardgrid(data):
     cards = []
     for item in data.index:
         cards.append(create_card(data['image_url'][item], data['name'][item], data['collection.name'][item], data['last_sale.total_price'][item], data['token_id'][item], data['asset_contract.address'][item]))
@@ -162,6 +161,7 @@ def create_cardgrid():
 
 
 def create_layout(app):
+    data = get_assets()
     return html.Div(
         children=[
             # HEADER
@@ -174,18 +174,15 @@ def create_layout(app):
             # CONTENT
             dbc.Card(dbc.Row([dbc.Col(c) for c in controls], form=True), body=True),
             html.Div(id="content"),
-            create_cardgrid(),
+            create_cardgrid(data),
         ],
         className="main"
     )
 
-# @app.callback(
-#
-# )
-# def update_grid()
-#     collections = []
-#     sort_by = ""
-#     sort_order = ""
-#     pagination/offset = ""
-#     page = ""
-#     limit = ""
+
+#@app.callback()
+#def update_grid():
+#    assets = get_assets(order_by, order_direction, offset, collection)
+#    create_cardgrid(assets)
+
+

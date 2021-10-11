@@ -11,6 +11,7 @@ If you want to run it locally follow the steps below:
 
 ###Prerequisites
 - Python 3.X ()
+- Internet connection
 
 ###Setup
 Start by opening your preferred terminal, and navigate to this project's directory.

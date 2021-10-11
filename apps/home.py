@@ -17,19 +17,22 @@ def get_new_auction():
     df = pd.json_normalize(data['asset_events'])
     col_list = ['asset.token_id', 'asset.image_url', 'asset.name', 'asset.contract_address']
     df = pd.DataFrame(df, columns=col_list)
-    df = df.rename(columns={'asset.token_id': 'token_id', 'asset.image_url': 'image_url', 'asset.name': 'name',
-                            'asset.contract_address': 'contract_address'})
     return df
 
 
 def create_slides():
     data = get_new_auction()
+
+
     slides = []
     for item in data.index:
+        asset_link = dbc.CardLink("{name}".format(name=data['asset.name'][item]),
+                                  href="/asset?asset_contract_address={address}&token_id={token_id}".format(
+                                      address=data['asset.contract_address'][item], token_id=data['asset.token_id'][item]))
         slides.append({
             "key": item,
-            "src": data['image_url'][item],
-            "header": data['name'][item],
+            "src": data['asset.image_url'][item],
+            "header": data['asset.name'][item],
         })
     return slides
 
@@ -65,7 +68,7 @@ cards = dbc.CardGroup(
                         "Upload your own NFTs, add metadata and list them for sale",
                         className="card-text",
                     ),
-                    dbc.CardLink("upload here", href="/asset?asset_contract_address=0xa2480eb41dd1f2b0abade9f305826c544d47f696&token_id=6771"),
+                    dbc.CardLink("upload here", href="/upload"),
                 ]
             ),
             color="dark",

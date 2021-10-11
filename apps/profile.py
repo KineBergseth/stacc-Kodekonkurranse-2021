@@ -16,7 +16,9 @@ from app import app
 def create_layout(app):
     return html.Div([
         html.H1('User profile'),
-        html.P('Here you can find stuff'),
+        html.P(['Here you can find an overview of your activity, such as your favorites assets, the bids you have '
+                'placed, and the NFTs you have upload and put for sale.', html.Br(), 'The display table has a built-in '
+                                                                                     'sorting system']),
         dcc.Tabs(id="profile-tabs", children=[
             dcc.Tab(label='Favorites', value='fav-tab'),
             dcc.Tab(label='Your active bids', value='bid-tab'),

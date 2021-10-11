@@ -22,7 +22,7 @@ def get_collection(offset, slug):
     return df
 
 
-def create_card(card_img, card_collection, card_title, card_price, token_id, asset_contract_address):
+def create_card(card_img, card_collection, card_title, token_id, asset_contract_address):
     asset_link = dbc.CardLink("{name}".format(name=card_title), href="/asset?asset_contract_address={address}&token_id={token_id}".format(address=asset_contract_address, token_id=token_id))
     return dbc.Card(
         [
@@ -30,15 +30,14 @@ def create_card(card_img, card_collection, card_title, card_price, token_id, ass
             dbc.CardBody(
                 [
                     html.H4(asset_link, className="card-title"),
-                    html.P(card_collection, className="card-collection"),
-                    html.P(card_price, className="card-price"),
+                    #html.P(card_collection, className="card-collection"),
                 ],
                 className="asset_cardbody",
             ),
         ],
         color="dark",
         inverse=True,
-        className="asset_card"
+        className="asset_card card border-primary mb-3"
     )
 
 
@@ -46,8 +45,8 @@ def create_cardgrid(offset, slug):
     data = get_collection(offset, slug)
     cards = []
     for item in data.index:
-        cards.append(create_card(data['image_url'][item], data['collection.name'][item], data['name'][item], 'price', data['token_id'][item], data['asset_contract.address'][item]))
-    return html.Div(dbc.CardColumns(cards, className="col_card_grid"), className='col_box')
+        cards.append(create_card(data['image_url'][item], data['collection.name'][item], data['name'][item], data['token_id'][item], data['asset_contract.address'][item]))
+    return html.Div([html.H1(data['collection.name'][0]), dbc.CardColumns(cards, className="col_card_grid")], className='col_box')
 
 
 pagination = dbc.FormGroup(
