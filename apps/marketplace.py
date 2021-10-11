@@ -7,8 +7,6 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 from app import app
 
-
-
 # Variables
 CAMERAS = [
     "CAM_FRONT",
@@ -29,6 +27,7 @@ order_by_list = ['pk', 'sale_date', 'sale_count']
 # convert snake case variables to readable text with capitalized letter
 def convert_snake(snake_case):
     return snake_case.replace("_", " ").title()
+
 
 controls = [
     html.Div(
@@ -74,26 +73,10 @@ controls = [
         [
             dbc.Label("Page"),
             html.Br(),
-            dbc.Spinner(
-                dbc.ButtonGroup(
-                    [
-                        dbc.Button(
-                            "Prev", id="prev", n_clicks=0, color="dark", outline=True
-                        ),
-                        dbc.Button("Next", id="next", n_clicks=0, color="dark", outline=True),
-                    ],
-                    id="button-group",
-                    style={"width": "50%"},
-                ),
-                spinner_style={"margin-top": 0, "margin-bottom": 0},
-            ),
+            dbc.Pagination(max_value=5, first_last=True, active_page=1, id="asset_pagination"),
         ]
     ),
 ]
-
-
-
-
 
 
 def get_assets(order_by, order_direction, offset, limit):
@@ -162,13 +145,15 @@ def create_layout(app):
     Output("content", "children"),
     [Input("collection-input", "value"),
      Input("order-by-input", "value"),
-     Input("order-direction-input", "value")]
+     Input("order-direction-input", "value"),
+     Input("asset_pagination", "active_page")]
     # page no.
 )
-def update_grid(collection, order_by, order_direction):
+def update_grid(collection, order_by, order_direction, page_no):
     limit = 20
-    page_no = 1
+    page_no = page_no
     offset = (page_no * limit) - limit
+    print(offset)
     collection = ""
     assets = get_assets(order_by, order_direction, offset, limit)
     return create_cardgrid(assets)
