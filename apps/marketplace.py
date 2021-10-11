@@ -7,19 +7,7 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 from app import app
 
-# Variables
-CAMERAS = [
-    "CAM_FRONT",
-    "CAM_BACK",
-    "CAM_FRONT_ZOOMED",
-    "CAM_FRONT_LEFT",
-    "CAM_FRONT_RIGHT",
-    "CAM_BACK_RIGHT",
-    "CAM_BACK_LEFT",
-]
-LIDARS = ["LIDAR_TOP", "LIDAR_FRONT_RIGHT", "LIDAR_FRONT_LEFT"]
-
-# collection = []
+collections = ['', 'dotdotdots', 'bears-deluxe', 'sappy-seals', 'gutterpigeons', 'epiceagles', 'infinity-frogs-nft']
 # sale_price param does not work on query - status 500 internal service error
 order_by_list = ['pk', 'sale_date', 'sale_count']
 
@@ -36,10 +24,10 @@ controls = [
             dbc.Select(
                 id="collection-input",
                 options=[
-                    {"label": convert_snake(s.replace("CAM_", "")), "value": s}
-                    for s in CAMERAS
+                    {"label": convert_snake(c), "value": c}
+                    for c in collections
                 ],
-                value=CAMERAS[0],
+                value=collections[0],
             ),
         ]
     ),
@@ -50,8 +38,8 @@ controls = [
                 id="order-by-input",
                 value=order_by_list[0],
                 options=[
-                    {"label": convert_snake(s), "value": s}
-                    for s in order_by_list
+                    {"label": convert_snake(o), "value": o}
+                    for o in order_by_list
                 ],
             ),
         ]
@@ -79,10 +67,10 @@ controls = [
 ]
 
 
-def get_assets(order_by, order_direction, offset, limit):
+def get_assets(order_by, order_direction, offset, limit, collection):
     url = "https://api.opensea.io/api/v1/assets"
     querystring = {"order_by": f"{order_by}", "order_direction": f"{order_direction}", "offset": f"{offset}",
-                   "limit": f"{limit}"}
+                   "limit": f"{limit}", "collection": f"{collection}"}
     response = requests.request("GET", url, params=querystring)
     data = response.json()
     df = pd.json_normalize(data['assets'])
@@ -153,7 +141,6 @@ def update_grid(collection, order_by, order_direction, page_no):
     limit = 20
     page_no = page_no
     offset = (page_no * limit) - limit
-    print(offset)
-    collection = ""
-    assets = get_assets(order_by, order_direction, offset, limit)
+    #collection = ""
+    assets = get_assets(order_by, order_direction, offset, limit, collection)
     return create_cardgrid(assets)
