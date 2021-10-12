@@ -137,7 +137,6 @@ def create_layout(url_query):
     token_id = url_query['token_id']
     dcc.Location(id='url', refresh=False),
     asset = get_single_asset(asset_contract_address, token_id)
-    # print(asset.columns)
 
     list_group = dbc.ListGroup(
         [

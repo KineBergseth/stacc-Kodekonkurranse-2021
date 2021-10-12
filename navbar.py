@@ -13,8 +13,7 @@ def Navbar():
         brand="Home",
         brand_href="/home",
         sticky="top",
-        color="dark",
-        dark=True,
+        className="",
         expand="md",
     )
     return navbar

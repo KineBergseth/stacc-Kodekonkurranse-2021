@@ -1,24 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
 
-html {
-
-}
-
-body {
-}
-
-h1 {
-    display: flex;
-    justify-content: center;
-    margin-top: 2vh;
-    margin-bottom: 2vh;
-}
-
-#main-content {
-    padding-left: 5vw;
-    padding-right: 5vw;
-}
-
 .carousel {
     width: 50vw;
     margin-left: auto;
@@ -30,38 +11,32 @@ h1 {
     height: auto;
 }
 
-.collection_buttons {
+.collection_buttons { /* keep this */
     display: flex;
     justify-content: space-around;
     flex-wrap: wrap;
     margin-bottom: 5vh;
 }
 
-.col-btn {
+.col-btn { /* keep this */
     background-color: transparent;
     border: none;
-    /* set max width responsive unit   */
-}
-
-.col-btn:hover {
-    opacity: 50%;
-}
-
-.col_box{
-
-}
-.col_card_grid {
 
 }
 
-.asset_card {
+.col-btn img{ /* keep this */
+    border-radius: 150px;
+	-webkit-border-radius: 150px;
+	-moz-border-radius: 150px;
+
+    box-shadow: 0 0 8px rgba(0, 0, 0, .8);
+	-webkit-box-shadow: 0 0 8px rgba(0, 0, 0, .8);
+	-moz-box-shadow: 0 0 8px rgba(0, 0, 0, .8);
+
 }
 
-.glow {
-    color: #32fbe2;
-    margin-top: 0;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    line-height: 1.2;
-    text-shadow: 0 0 1px rgba(50, 251, 226, 0.6), 0 0 3px rgba(50, 251, 226, 0.5), 0 0 0.5rem rgba(50, 251, 226, 0.3), 0 0 2rem rgba(50, 251, 226, 0.2);
+.col-btn:hover { /* keep this */
+    opacity: 0.7;
+    transition: opacity 0.3s ease-in-out;
+  -webkit-transition: opacity 0.3s ease-in-out; /* Safari */
 }

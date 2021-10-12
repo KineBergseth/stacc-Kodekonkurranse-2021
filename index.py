@@ -21,7 +21,7 @@ app.layout = html.Div([
     dcc.Location(id="url", refresh=False),
     Navbar(),
     html.Div(
-        id="main-content"
+        id="main-content", className="mx-sm-5"
     )
 ])
 
@@ -33,7 +33,7 @@ def display_page(path_name, path_href):
     if path_name == "/marketplace":
         return marketplace.create_layout(app)
     elif path_name == "/collections":
-        return nft_collections.create_layout(app)
+        return nft_collections.create_layout()
     elif path_name.startswith("/asset"):
         # get query string from url as dictionary
         parse_result = urlparse(path_href)
