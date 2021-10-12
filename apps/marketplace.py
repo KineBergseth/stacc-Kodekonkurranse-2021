@@ -2,69 +2,14 @@ import dash
 from dash import html
 import requests
 import pandas as pd
-import json
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 from app import app
-
-collections = ['', 'dotdotdots', 'bears-deluxe', 'sappy-seals', 'gutterpigeons', 'epiceagles', 'infinity-frogs-nft']
-# sale_price param does not work on query - status 500 internal service error
-order_by_list = ['pk', 'sale_date', 'sale_count']
 
 
 # convert snake case variables to readable text with capitalized letter
 def convert_snake(snake_case):
     return snake_case.replace("_", " ").title()
-
-
-controls = [
-    html.Div(
-        [
-            dbc.Label("Collection"),
-            dbc.Select(
-                id="collection-input",
-                options=[
-                    {"label": convert_snake(c), "value": c}
-                    for c in collections
-                ],
-                value=collections[0],
-            ),
-        ]
-    ),
-    html.Div(
-        [
-            dbc.Label("Sort by"),
-            dbc.Select(
-                id="order-by-input",
-                value=order_by_list[0],
-                options=[
-                    {"label": convert_snake(o), "value": o}
-                    for o in order_by_list
-                ],
-            ),
-        ]
-    ),
-    html.Div(
-        [
-            dbc.Label("Order"),
-            dbc.RadioItems(
-                options=[
-                    {"label": "desc", "value": "desc"},
-                    {"label": "asc", "value": "asc"},
-                ],
-                value="desc",
-                id="order-direction-input",
-            ),
-        ]
-    ),
-    html.Div(
-        [
-            dbc.Label("Page"),
-            html.Br(),
-            dbc.Pagination(max_value=5, first_last=True, active_page=1, id="asset_pagination"),
-        ]
-    ),
-]
 
 
 def get_assets(order_by, order_direction, offset, limit, collection):
@@ -90,15 +35,13 @@ def create_card(card_img, card_collection, card_title, card_price, token_id, ass
             dbc.CardBody(
                 [
                     html.H4(asset_link, className="card-title"),
-                    html.P(card_collection, className="card-collection"),
-                    html.P(card_price, className="card-price"),
+                    html.P(card_collection, className="card-text"),
+                    html.P(card_price, className="card-text"),
                 ],
-                className="asset_cardbody",
+                className="card-body",
             ),
         ],
-        color="dark",
-        inverse=True,
-        className="asset_card col"
+        className="card border-primary col"
     )
 
 
@@ -108,39 +51,96 @@ def create_cardgrid(data):
         cards.append(create_card(data['image_url'][item], data['name'][item], data['collection.name'][item],
                                  data['last_sale.total_price'][item], data['token_id'][item],
                                  data['asset_contract.address'][item]))
-    return html.Div(cards, className="row row-cols-4")
+    return html.Div(cards, className="col_card_grid row row-cols-4")
 
 
-def create_layout(app):
+def create_layout():
+    collections = ['', 'dotdotdots', 'bears-deluxe', 'sappy-seals', 'gutterpigeons', 'epiceagles', 'infinity-frogs-nft']
+    # sale_price param does not work on query - status 500 internal service error
+    order_by_list = ['pk', 'sale_date', 'sale_count']
+
+    controls = [
+        html.Div(
+            [
+                dbc.Label("Collection", className="form-label"),
+                dbc.Select(
+                    id="collection-input",
+                    className="form-select",
+                    options=[
+                        {"label": convert_snake(c), "value": c}
+                        for c in collections
+                    ],
+                    value=collections[0],
+                ),
+            ],
+            className="form-group",
+        ),
+        html.Div(
+            [
+                dbc.Label("Sort by", className="form-label"),
+                dbc.Select(
+                    id="order-by-input",
+                    className="form-select",
+                    value=order_by_list[0],
+                    options=[
+                        {"label": convert_snake(o), "value": o}
+                        for o in order_by_list
+                    ],
+                ),
+            ],
+            className="form-group",
+        ),
+        html.Div(
+            [
+                dbc.Label("Order", className="form-check-label"),
+                dbc.RadioItems(
+                    options=[
+                        {"label": "desc", "value": "desc"},
+                        {"label": "asc", "value": "asc"},
+                    ],
+                    value="desc",
+                    id="order-direction-input",
+                ),
+            ],
+            className="form-group",
+        ),
+        html.Div(
+            [
+                dbc.Label("Page"),
+                html.Br(),
+                dbc.Pagination(max_value=5, first_last=True, active_page=1, id="asset_pagination", className="pagination"),
+            ]
+        ),
+    ]
+
     return html.Div(
-        children=[
-            # HEADER
+        [
             html.Div(
-                children=[
-                    html.H1('NFT', id='header-text'),
+                [
+                    dbc.Card([dbc.CardHeader("Filter", className="card-header"),
+                              dbc.CardBody([dbc.Row([dbc.Col(c) for c in controls])], className="card-body")], body=True,
+                             className="card border-light mb-3"),  # create sorting controls
+
                 ],
                 className="header",
             ),
-            # CONTENT
-            dbc.Card(dbc.Row([dbc.Col(c) for c in controls]), body=True),
-            html.Div(id="content"),
+            html.Div(id="card-grid-content"),
         ],
         className="main"
     )
 
 
 @app.callback(
-    Output("content", "children"),
+    Output("card-grid-content", "children"),
     [Input("collection-input", "value"),
      Input("order-by-input", "value"),
      Input("order-direction-input", "value"),
      Input("asset_pagination", "active_page")]
-    # page no.
 )
 def update_grid(collection, order_by, order_direction, page_no):
     limit = 20
     page_no = page_no
     offset = (page_no * limit) - limit
-    #collection = ""
+    # collection = ""
     assets = get_assets(order_by, order_direction, offset, limit, collection)
     return create_cardgrid(assets)

@@ -31,7 +31,7 @@ app.layout = html.Div([
               [Input("url", "pathname"), Input("url", "href")])
 def display_page(path_name, path_href):
     if path_name == "/marketplace":
-        return marketplace.create_layout(app)
+        return marketplace.create_layout()
     elif path_name == "/collections":
         return nft_collections.create_layout()
     elif path_name.startswith("/asset"):
@@ -45,7 +45,7 @@ def display_page(path_name, path_href):
     elif path_name == "/upload":
         return upload.create_layout(app)
     else:
-        return home.create_layout(app)
+        return home.create_layout()
 
 
 if __name__ == '__main__':

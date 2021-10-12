@@ -100,8 +100,8 @@ def create_cardgrid(offset, limit, slug):
 
 def create_layout():
     """
-    Creates the layout for the collections page.
-    :return: layout
+    Creates the layout for the collections page
+    :return: layout with all the elements in
     """
     return html.Div(
         [
