@@ -19,7 +19,8 @@ def get_single_asset(asset_contract_address, token_id):
     df = pd.DataFrame(df)  # , columns=col_list)
     return df
 
-#todo https://dbc-v1.herokuapp.com/docs/components/accordion/
+
+# todo https://dbc-v1.herokuapp.com/docs/components/accordion/
 def accordion_desc(i):
     return dbc.Card(
         [
@@ -155,6 +156,7 @@ def create_layout(url_query):
                 [
                     html.H5('Save', id="tooltip-favourites"),
                     html.Div(fav_btn),
+                    html.P(id="output_fav"),
                 ],
 
             ),
@@ -274,13 +276,32 @@ def accept_bid(n_confirm, asset, n_amount):
             "token_id": "{id}".format(id=asset['token_id']),
             "price": "{price}".format(price=n_amount)
         }
-        write_json(bid_asset)
+        write_json(bid_asset, 'bids', 'bids.json')
         return f"Bid of {n_amount} ETH accepted!"
 
 
-def write_json(new_bid, filename='bids.json'):
+@app.callback(
+    Output("output_fav", "children"),
+    [Input("fav_btn", "n_clicks"),
+     Input('address_token', 'data')]
+)
+def add_favourite(n_fav, asset):
+    if n_fav:
+        fav_asset = {
+                        "asset_contract_address": "{address}".format(address=asset['asset_contract_address']),
+                        "token_id": "{id}".format(id=asset['token_id']),
+                    }
+        write_json(fav_asset, 'favourites', 'favourites.json')
+        return "wohoo"
+
+
+def write_json(new_json, name, filename):
     with open(filename, 'r+') as file:
+        #print(new_json)
         file_data = json.load(file)  # load data into dict
-        file_data['bids'].append(new_bid)
+        #print(file_data)
+        #if new_json not in file_data:
+        file_data[name].append(new_json)
         file.seek(0)
         json.dump(file_data, file, indent=4)
+        #TODO dont allow duplicates
