@@ -2,12 +2,9 @@ import requests
 import pandas as pd
 import dash
 import json
-from dash import html
 import dash_bootstrap_components as dbc
-from dash import dcc
-from dash.dependencies import Input, Output, State
 from urllib.parse import urlparse, parse_qsl, urlencode
-
+from dash import Dash, callback, html, dcc, dash_table, Input, Output, State, MATCH, ALL
 from app import app
 
 
@@ -22,7 +19,7 @@ def get_single_asset(asset_contract_address, token_id):
     df = pd.DataFrame(df)  # , columns=col_list)
     return df
 
-
+#todo https://dbc-v1.herokuapp.com/docs/components/accordion/
 def accordion_desc(i):
     return dbc.Card(
         [

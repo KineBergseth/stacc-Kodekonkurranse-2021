@@ -1,15 +1,28 @@
-import dash
-from dash import html
 import requests
 import pandas as pd
 import dash_bootstrap_components as dbc
-from dash.dependencies import Input, Output, State
+from dash import Dash, callback, html, dcc, dash_table, Input, Output, State, MATCH, ALL
 from app import app
-
 
 # convert snake case variables to readable text with capitalized letter
 def convert_snake(snake_case):
     return snake_case.replace("_", " ").title()
+
+
+def convert_slugs(snake_case):
+    return snake_case.replace("-", " ").title()
+
+
+def get_collection_slug():
+    url = "https://api.opensea.io/api/v1/collections?offset=0&limit=300"
+    response = requests.request("GET", url)
+    data = response.json()
+    df = pd.json_normalize(data['collections'])
+    # only need a certain set of columns
+    df = pd.DataFrame(df)
+    collection = df['slug'].tolist()
+    collection.insert(0, '')
+    return collection
 
 
 def get_assets(order_by, order_direction, offset, limit, collection):
@@ -55,7 +68,8 @@ def create_cardgrid(data):
 
 
 def create_layout():
-    collections = ['', 'dotdotdots', 'bears-deluxe', 'sappy-seals', 'gutterpigeons', 'epiceagles', 'infinity-frogs-nft']
+    collections = get_collection_slug()
+    #collections2 = ['', 'dotdotdots', 'bears-deluxe', 'sappy-seals', 'gutterpigeons', 'epiceagles', 'infinity-frogs-nft']
     # sale_price param does not work on query - status 500 internal service error
     order_by_list = ['pk', 'sale_date', 'sale_count']
 
@@ -67,7 +81,7 @@ def create_layout():
                     id="collection-input",
                     className="form-select",
                     options=[
-                        {"label": convert_snake(c), "value": c}
+                        {"label": convert_slugs(c), "value": c}
                         for c in collections
                     ],
                     value=collections[0],
@@ -108,7 +122,8 @@ def create_layout():
             [
                 dbc.Label("Page"),
                 html.Br(),
-                dbc.Pagination(max_value=5, first_last=True, active_page=1, id="asset_pagination", className="pagination"),
+                dbc.Pagination(max_value=5, first_last=True, active_page=1, id="asset_pagination",
+                               className="pagination"),
             ]
         ),
     ]
@@ -118,7 +133,8 @@ def create_layout():
             html.Div(
                 [
                     dbc.Card([dbc.CardHeader("Filter", className="card-header"),
-                              dbc.CardBody([dbc.Row([dbc.Col(c) for c in controls])], className="card-body")], body=True,
+                              dbc.CardBody([dbc.Row([dbc.Col(c) for c in controls])], className="card-body")],
+                             body=True,
                              className="card border-light mb-3"),  # create sorting controls
 
                 ],
