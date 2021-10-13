@@ -129,7 +129,7 @@ def create_layout():
     ]
 
     return html.Div(
-        [
+        children=[
             html.Div(
                 [
                     dbc.Card([dbc.CardHeader("Filter", className="card-header"),

@@ -102,7 +102,7 @@ def create_layout():
     :return: layout with all the elements in
     """
     return html.Div(
-        [
+        children=[
             dcc.Store(id='slug_memory'),  # local storage for collection slug value
             html.Div(
                 [

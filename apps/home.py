@@ -31,8 +31,8 @@ def create_slides(data):
     """
     slides = []
     for item in data.index:
-        asset_link = html.A('{name}'.format(name=data['asset.name'][item]), href='/asset?asset_contract_address={address}&token_id={token_id}'.format(
-            address=data['asset.contract_address'][item], token_id=data['asset.token_id'][item]))
+        # dcc.Link('Go to profile', href='/profile')
+        #asset_link = html.A('{name}'.format(name=data['asset.name'][item]), href='/asset?asset_contract_address={address}&token_id={token_id}'.format(address=data['asset.contract_address'][item], token_id=data['asset.token_id'][item]))
         slides.append({
             "key": item,
             "src": data['asset.image_url'][item],
@@ -56,7 +56,7 @@ def create_layout():
             dbc.Card(
                 dbc.CardBody(
                     [
-                        html.H5("Explore", className="card-title"),
+                        html.H5("Explore", className="card-title text-center"),
                         html.P(
                             "Browse thousands of NFTs on our marketplace, and put in bids"
                             "Discover collections",
@@ -70,7 +70,7 @@ def create_layout():
             dbc.Card(
                 dbc.CardBody(
                     [
-                        html.H5("Sell your NFTs", className="card-title"),
+                        html.H5("Sell your NFTs", className="card-title text-center"),
                         html.P(
                             "Upload your own NFTs, add metadata and list them for sale",
                             className="card-text",
@@ -82,7 +82,7 @@ def create_layout():
             dbc.Card(
                 dbc.CardBody(
                     [
-                        html.H5("Profile", className="card-title"),
+                        html.H5("Profile", className="card-title text-center"),
                         html.P('''On your own profile you can keep track on NFTs your have added to your favourites, 
                             keep track of the NFTs you have placed bids on and view your uploaded assets ''',
                                className="card-text",
@@ -95,10 +95,10 @@ def create_layout():
     )
 
     return html.Div(
-        [
+        children=[
             html.Div(
                 [
-                    html.H1('NFT', id='header-text'),
+                    html.H1('New auctions', id='header-text text-center'),
                 ],
                 className="header",
             ),

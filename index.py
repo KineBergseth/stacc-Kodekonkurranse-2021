@@ -17,13 +17,14 @@ from apps import (
 
 from navbar import Navbar
 
-app.layout = html.Div([
-    dcc.Location(id="url", refresh=False),
-    Navbar(),
-    html.Div(
-        id="main-content", className="mx-sm-5"
-    )
-])
+app.layout = html.Div(
+    children=[
+        dcc.Location(id="url", refresh=False),
+        Navbar(),
+        html.Div(
+            id="main-content", className="mx-sm-5"
+        )
+    ])
 
 
 # Update page when navbar is used
