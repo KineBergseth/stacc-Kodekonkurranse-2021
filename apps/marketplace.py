@@ -4,6 +4,7 @@ import dash_bootstrap_components as dbc
 from dash import Dash, callback, html, dcc, dash_table, Input, Output, State, MATCH, ALL
 from app import app
 
+
 # convert snake case variables to readable text with capitalized letter
 def convert_snake(snake_case):
     return snake_case.replace("_", " ").title()
@@ -21,7 +22,6 @@ def get_collection_slug():
     # only need a certain set of columns
     df = pd.DataFrame(df)
     collection = df['slug'].tolist()
-    collection.insert(0, '')
     return collection
 
 
@@ -69,7 +69,6 @@ def create_cardgrid(data):
 
 def create_layout():
     collections = get_collection_slug()
-    #collections2 = ['', 'dotdotdots', 'bears-deluxe', 'sappy-seals', 'gutterpigeons', 'epiceagles', 'infinity-frogs-nft']
     # sale_price param does not work on query - status 500 internal service error
     order_by_list = ['pk', 'sale_date', 'sale_count']
 
@@ -80,11 +79,10 @@ def create_layout():
                 dbc.Select(
                     id="collection-input",
                     className="form-select",
-                    options=[
-                        {"label": convert_slugs(c), "value": c}
-                        for c in collections
-                    ],
-                    value=collections[0],
+                    options=[{'label': 'Select all', 'value': ''}] +
+                            [{"label": convert_slugs(c), "value": c}
+                             for c in collections],
+                    value='',  # set select all to default value
                 ),
             ],
             className="form-group",
