@@ -1,37 +1,35 @@
 import dash
-from dash import html
-import dash_bootstrap_components as dbc
-from dash.dependencies import Input, Output, State
 from app import app
-from dash import dcc
 import datetime
+from dash import Dash, callback, html, dcc, dash_table, Input, Output, State, MATCH, ALL
 
 
 def make_json():
     asset = {
-      "id": 68079114,
-      "token_id": "67222163736366812115248145867153913994637167072440910807912450046197447524353",
-      "image_url": "https://lh3.googleusercontent.com/RsvSnb3pzST8amJoNRiydKLFPNG2NPQhNc1fkvBY1yhAVMc6iYOGa6AobIrVE6t6Rt6TgDHdfwx3pbq17oLyqQkZmxLNlBo7NhBLz8M",
-      "name": "The Crypto Ape#529",
-      "description": "The Crypto Ape #529, enjoying its life in the Ethereum Blockchain!",
-      "asset_contract": {
-        "address": "0x495f947276749ce646f68ac8c248420045cb7b5e",
-        "asset_contract_type": "semi-fungible",
-        "created_date": "2020-12-02T17:40:53.232025",
-        "name": "Stacc Collection",
-        "owner": 102384,
-        "schema_name": "ERC1155",
-        "symbol": "OPENSTORE"
-      },
-      "owner": {
-        "user": {
-          "username": "NullAddress"
+        "id": 68079114,
+        "token_id": "67222163736366812115248145867153913994637167072440910807912450046197447524353",
+        "image_url": "https://lh3.googleusercontent.com/RsvSnb3pzST8amJoNRiydKLFPNG2NPQhNc1fkvBY1yhAVMc6iYOGa6AobIrVE6t6Rt6TgDHdfwx3pbq17oLyqQkZmxLNlBo7NhBLz8M",
+        "name": "The Crypto Ape#529",
+        "description": "The Crypto Ape #529, enjoying its life in the Ethereum Blockchain!",
+        "asset_contract": {
+            "address": "0x495f947276749ce646f68ac8c248420045cb7b5e",
+            "asset_contract_type": "semi-fungible",
+            "created_date": "2020-12-02T17:40:53.232025",
+            "name": "Stacc Collection",
+            "owner": 102384,
+            "schema_name": "ERC1155",
+            "symbol": "OPENSTORE"
+        },
+        "owner": {
+            "user": {
+                "username": "NullAddress"
+            }
         }
-      }
     }
     return asset
 
-#test_base64 =
+
+# test_base64 =
 
 
 upload_img = html.Div([
@@ -57,6 +55,7 @@ upload_img = html.Div([
     html.Div(id='output-image-upload'),
 ])
 
+
 def parse_contents(contents, filename, date):
     print(contents)
     return html.Div([
@@ -74,7 +73,8 @@ def parse_contents(contents, filename, date):
         })
     ])
 
-def create_layout(app):
+
+def create_layout():
     return html.Div(
         children=[
             # HEADER
@@ -91,6 +91,7 @@ def create_layout(app):
         className="main"
 
     )
+
 
 @app.callback(Output('output-image-upload', 'children'),
               Input('upload-image', 'contents'),

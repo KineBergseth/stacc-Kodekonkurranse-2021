@@ -2,31 +2,41 @@ import requests
 import pandas as pd
 import dash
 import json
-from dash import html
-from dash import dcc
 import dash_bootstrap_components as dbc
-from dash import dash_table
-from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
+from dash import Dash, callback, html, dcc, dash_table, Input, Output, State, MATCH, ALL
+from dash_table.Format import Format, Scheme, Sign, Symbol
 import random
 
 from app import app
 
+user = html.P(' lizardlover23')
 
-def create_layout(app):
+
+# usename
+# @username
+# 0x88af555yhj65j4gh4j6.............
+# bio
+# website
+# profile img | following x | followers x
+
+
+def create_layout():
     return html.Div(
         children=[
-        html.H1('User profile'),
-        html.P(['Here you can find an overview of your activity, such as your favorites assets, the bids you have '
-                'placed, and the NFTs you have upload and put for sale.', html.Br(), 'The display table has a built-in '
-                                                                                     'sorting system']),
-        dcc.Tabs(id="profile-tabs", children=[
-            dcc.Tab(label='Favorites', value='fav-tab'),
-            dcc.Tab(label='Your active bids', value='bid-tab'),
-            dcc.Tab(label='Your uploaded NFTs', value='upload-tab'),
-        ]),
-        html.Div(id='profile-content-tabs')
-    ])
+            html.H1('User profile'),
+            html.P(['Here you can find an overview of your activity, such as your favorites assets, the bids you have '
+                    'placed, and the NFTs you have upload and put for sale.', html.Br(),
+                    'The display table has a built-in '
+                    'sorting system']),
+            dcc.Tabs(id="profile-tabs", children=[
+                dcc.Tab(label='Favorites', value='fav-tab'),
+                dcc.Tab(label='Your active bids', value='bid-tab'),
+                dcc.Tab(label='Your uploaded NFTs', value='upload-tab'),
+            ],
+                     className=""),
+            html.Div(id='profile-content-tabs')
+        ])
 
 
 def add_imgmarkdown(url):
@@ -34,26 +44,23 @@ def add_imgmarkdown(url):
 
 
 def generate_table(data):
-    ctx = dash.callback_context
+    # ctx = dash.callback_context
 
-    if not ctx.triggered:
-        raise PreventUpdate
-    else:
-        button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-
-    asset_data = data
     return dash_table.DataTable(
         id='table',
-        data=asset_data.to_dict('records'),
+        data=data.to_dict('records'),
         columns=[
             {"id": "image_url", "name": "NFT", "presentation": "markdown"},
             {"id": "name", "name": "name"},
-            {"id": "price", "name": "Current price/bid"},
+            {"id": "price", "name": "Current bid", 'format': Format().symbol(Symbol.yes).symbol_suffix('*'),
+             },
         ],
         markdown_options={"html": True},
         sort_action='native',
+        style_header={},
         style_cell={'textAlign': 'left', "whiteSpace": "pre-line"},
         style_as_list_view=True,
+        editable=False,
     )
 
 
@@ -98,7 +105,6 @@ def tab_bids():
     return generate_table(result)
 
 
-# \n for linjeskift "your bid is \n X ETH
 def tab_uploads():
     f = open('uploads.json', )
     uploaded_data = json.load(f)

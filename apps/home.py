@@ -1,9 +1,8 @@
 import dash
-from dash import html
 import dash_bootstrap_components as dbc
 import requests
 import pandas as pd
-from dash import dcc
+from dash import Dash, callback, html, dcc, dash_table, Input, Output, State, MATCH, ALL
 from app import app
 
 

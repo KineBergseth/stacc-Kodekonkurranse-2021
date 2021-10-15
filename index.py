@@ -42,9 +42,9 @@ def display_page(path_name, path_href):
         state = dict(params)
         return asset.create_layout(state)
     elif path_name == "/profile":
-        return profile.create_layout(app)
+        return profile.create_layout()
     elif path_name == "/upload":
-        return upload.create_layout(app)
+        return upload.create_layout()
     else:
         return home.create_layout()
 

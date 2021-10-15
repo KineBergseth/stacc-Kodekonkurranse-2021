@@ -13,120 +13,9 @@ def get_single_asset(asset_contract_address, token_id):
         asset_contract_address=asset_contract_address, token_id=token_id)
     response = requests.request("GET", url)
     data = response.json()
-
     df = pd.json_normalize(data)
-    # col_list = ['id', 'token_id', 'asset_contract.address', 'image_url', 'name']
-    df = pd.DataFrame(df)  # , columns=col_list)
+    df = pd.DataFrame(df)
     return df
-
-
-# todo https://dbc-v1.herokuapp.com/docs/components/accordion/
-def accordion_desc(i):
-    return dbc.Card(
-        [
-            dbc.CardHeader(
-                html.H2(
-                    dbc.Button(
-                        f"Description",
-                        color="link",
-                        id=f"group-{i}-toggle",
-                        n_clicks=0,
-                    )
-                )
-            ),
-            dbc.Collapse(
-                dbc.CardBody(f"Created by, description"),
-                id=f"collapse-{i}",
-                is_open=False,
-            ),
-        ]
-    )
-
-
-def accordion_details(i):
-    table_header = [
-        html.Thead(html.Tr([html.Th("Key"), html.Th("Value")]))
-    ]
-
-    row1 = html.Tr([html.Td("Contract Address"), html.Td("")])
-    row2 = html.Tr([html.Td("Token ID"), html.Td("")])
-    row3 = html.Tr([html.Td("Token Standard"), html.Td("")])
-    row4 = html.Tr([html.Td("Blockchain"), html.Td("")])
-
-    table_body = [html.Tbody([row1, row2, row3, row4])]
-    return dbc.Card(
-        [
-            dbc.CardHeader(
-                html.H2(
-                    dbc.Button(
-                        f"Details",
-                        color="link",
-                        id=f"group-{i}-toggle",
-                        n_clicks=0,
-                    )
-                )
-            ),
-            dbc.Collapse(
-                dbc.CardBody(dbc.Table(table_body, bordered=True)),
-                id=f"collapse-{i}",
-                is_open=False,
-            ),
-        ]
-    )
-
-
-def make_item(i):
-    return dbc.Card(
-        [
-            dbc.CardHeader(
-                html.H2(
-                    dbc.Button(
-                        f"Collapsible group #{i}",
-                        color="link",
-                        id=f"group-{i}-toggle",
-                        n_clicks=0,
-                    )
-                )
-            ),
-            dbc.Collapse(
-                dbc.CardBody(f"This is the content of group {i}..."),
-                id=f"collapse-{i}",
-                is_open=False,
-            ),
-        ]
-    )
-
-
-fav_btn_heart = html.Button(id='fav_btn_hrt', className="fav-btn-hrt",
-                            children=[html.Img(
-                                src='data:image/svg+xml;base64,'
-                                    'PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0xMiAyMS41OTNjLTUuNjMtNS41MzktMTEtMTAuMjk3LTExLTE0LjQwMiAwLTMuNzkxIDMuMDY4LTUuMTkxIDUuMjgxLTUuMTkxIDEuMzEyIDAgNC4xNTEuNTAxIDUuNzE5IDQuNDU3IDEuNTktMy45NjggNC40NjQtNC40NDcgNS43MjYtNC40NDcgMi41NCAwIDUuMjc0IDEuNjIxIDUuMjc0IDUuMTgxIDAgNC4wNjktNS4xMzYgOC42MjUtMTEgMTQuNDAybTUuNzI2LTIwLjU4M2MtMi4yMDMgMC00LjQ0NiAxLjA0Mi01LjcyNiAzLjIzOC0xLjI4NS0yLjIwNi0zLjUyMi0zLjI0OC01LjcxOS0zLjI0OC0zLjE4MyAwLTYuMjgxIDIuMTg3LTYuMjgxIDYuMTkxIDAgNC42NjEgNS41NzEgOS40MjkgMTIgMTUuODA5IDYuNDMtNi4zOCAxMi0xMS4xNDggMTItMTUuODA5IDAtNC4wMTEtMy4wOTUtNi4xODEtNi4yNzQtNi4xODEiLz48L3N2Zz4=')]),
-fav_btn = dbc.Button('Save', id='fav_btn', className="fav-btn", color='dark')
-
-bid_window = dbc.Modal(
-    [
-        dbc.ModalHeader("Bid"),
-        dbc.ModalBody("Put in your bid. Decimals are indicated with ."),
-        dbc.InputGroup(
-            [
-                dbc.Input(id="bid_amount", placeholder="Amount", type="number"),
-                dbc.InputGroupText("ETH"),
-            ],
-        ),
-        html.P(id="output_msg_bid"),
-        dbc.ModalFooter([
-            dbc.Button(
-                "Confirm", id="confirm_bid", className="ml-auto", n_clicks=0, color="dark"
-            ),
-            dbc.Button(
-                "Close", id="close_modal", className="ml-auto", n_clicks=0,
-            )
-        ],
-        ),
-    ],
-    id="modal",
-    is_open=False,
-)
 
 
 def create_layout(url_query):
@@ -135,6 +24,37 @@ def create_layout(url_query):
     token_id = url_query['token_id']
     dcc.Location(id='url', refresh=False),
     asset = get_single_asset(asset_contract_address, token_id)
+
+    fav_btn_heart = html.Button(id='fav_btn_hrt', className="fav-btn-hrt",
+                                children=[html.Img(
+                                    src='data:image/svg+xml;base64,'
+                                        'PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0xMiAyMS41OTNjLTUuNjMtNS41MzktMTEtMTAuMjk3LTExLTE0LjQwMiAwLTMuNzkxIDMuMDY4LTUuMTkxIDUuMjgxLTUuMTkxIDEuMzEyIDAgNC4xNTEuNTAxIDUuNzE5IDQuNDU3IDEuNTktMy45NjggNC40NjQtNC40NDcgNS43MjYtNC40NDcgMi41NCAwIDUuMjc0IDEuNjIxIDUuMjc0IDUuMTgxIDAgNC4wNjktNS4xMzYgOC42MjUtMTEgMTQuNDAybTUuNzI2LTIwLjU4M2MtMi4yMDMgMC00LjQ0NiAxLjA0Mi01LjcyNiAzLjIzOC0xLjI4NS0yLjIwNi0zLjUyMi0zLjI0OC01LjcxOS0zLjI0OC0zLjE4MyAwLTYuMjgxIDIuMTg3LTYuMjgxIDYuMTkxIDAgNC42NjEgNS41NzEgOS40MjkgMTIgMTUuODA5IDYuNDMtNi4zOCAxMi0xMS4xNDggMTItMTUuODA5IDAtNC4wMTEtMy4wOTUtNi4xODEtNi4yNzQtNi4xODEiLz48L3N2Zz4=')]),
+    fav_btn = dbc.Button('Save', id='fav_btn', className="fav-btn", color='dark')
+
+    bid_window = dbc.Modal(
+        [
+            dbc.ModalHeader("Bid"),
+            dbc.ModalBody("Put in your bid. Decimals are indicated with ."),
+            dbc.InputGroup(
+                [
+                    dbc.Input(id="bid_amount", placeholder="Amount", type="number"),
+                    dbc.InputGroupText("ETH"),
+                ],
+            ),
+            html.P(id="output_msg_bid"),
+            dbc.ModalFooter([
+                dbc.Button(
+                    "Confirm", id="confirm_bid", className="ml-auto", n_clicks=0, color="dark"
+                ),
+                dbc.Button(
+                    "Close", id="close_modal", className="ml-auto", n_clicks=0,
+                )
+            ],
+            ),
+        ],
+        id="modal",
+        is_open=False,
+    )
 
     list_group = dbc.ListGroup(
         [
@@ -148,7 +68,7 @@ def create_layout(url_query):
             dbc.ListGroupItem(
                 [
                     html.H5('price'),
-                    html.Small('0.003 ETH'),
+                    html.Small('0.003 ETH'), #todo
                 ],
 
             ),
@@ -172,11 +92,51 @@ def create_layout(url_query):
         dbc.CardBody(
             [
                 list_group,
-                dbc.Button("Place a bid", id="open", n_clicks=0, color="dark"),
+                dbc.Button("Place a bid", id="open", n_clicks=0, className="btn btn-primary"),
             ]
         ),
         # style={"width": "18rem"},
         className="border-light",
+    )
+
+    row1 = html.Tr([html.Td("Contract Address"), html.Td(asset['asset_contract.address'])])
+    row2 = html.Tr([html.Td("Token ID"), html.Td(asset['token_id'])])
+    row3 = html.Tr([html.Td("Token Standard"), html.Td("")])
+    row4 = html.Tr([html.Td("Blockchain"), html.Td("")])
+
+    table_body = [html.Tbody([row1, row2, row3, row4])]
+
+    accordion = html.Div(
+        dbc.Accordion(
+            [
+                dbc.AccordionItem(
+                    [
+                        html.P('Created by ' + asset['creator.user.username'], className="text-muted"),
+                        html.P(asset['description']),
+                    ],
+                    title="Description", className="accordion-item",
+                ),
+                dbc.AccordionItem(
+                    [
+                        html.Img(src="{url}".format(url=asset['collection.image_url'])), #todo
+                        html.P(asset['collection.description']),
+                    ],
+                    title="About " + asset['collection.name'], className="accordion-item",
+                ),
+                dbc.AccordionItem(
+                    [
+                        html.P("This is the content of the second section"), #todo
+                    ],
+                    title="Traits", className="accordion-item",
+                ),
+                dbc.AccordionItem(
+                    table_body,
+                    title="Details", className="accordion-item",
+                ),
+            ],
+            flush=True,
+            className="accordion",
+        )
     )
 
     return html.Div(
@@ -204,13 +164,10 @@ def create_layout(url_query):
                     ),
                 ]
             ),
-
+            dbc.Button("Open on opensea", id="opensea_link", n_clicks=0, className="btn btn-primary",
+                       href=f"{asset['permalink']}"),
             bid_window,
-
-            html.Div(
-                [accordion_desc(1), make_item(2), make_item(3), accordion_details(4)], className="accordion"
-            ),
-
+            accordion,
         ],
         className="main"
     )
@@ -225,30 +182,6 @@ def display_page(path_href):
     params = parse_qsl(parse_result.query)
     state = dict(params)
     return state
-
-
-@app.callback(
-    [Output(f"collapse-{i}", "is_open") for i in range(1, 5)],
-    [Input(f"group-{i}-toggle", "n_clicks") for i in range(1, 5)],
-    [State(f"collapse-{i}", "is_open") for i in range(1, 5)],
-)
-def toggle_accordion(n1, n2, n3, n4, is_open1, is_open2, is_open3, is_open4):
-    ctx = dash.callback_context
-
-    if not ctx.triggered:
-        return False, False, False, False
-    else:
-        button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-
-    if button_id == "group-1-toggle" and n1:
-        return not is_open1, False, False, False
-    elif button_id == "group-2-toggle" and n2:
-        return False, not is_open2, False, False
-    elif button_id == "group-3-toggle" and n3:
-        return False, False, not is_open3, False
-    elif button_id == "group-4-toggle" and n4:
-        return False, False, False, not is_open4
-    return False, False, False, False
 
 
 @app.callback(
@@ -288,20 +221,20 @@ def accept_bid(n_confirm, asset, n_amount):
 def add_favourite(n_fav, asset):
     if n_fav:
         fav_asset = {
-                        "asset_contract_address": "{address}".format(address=asset['asset_contract_address']),
-                        "token_id": "{id}".format(id=asset['token_id']),
-                    }
+            "asset_contract_address": "{address}".format(address=asset['asset_contract_address']),
+            "token_id": "{id}".format(id=asset['token_id']),
+        }
         write_json(fav_asset, 'favourites', 'favourites.json')
         return "wohoo"
 
 
 def write_json(new_json, name, filename):
     with open(filename, 'r+') as file:
-        #print(new_json)
+        # print(new_json)
         file_data = json.load(file)  # load data into dict
-        #print(file_data)
-        #if new_json not in file_data:
+        # print(file_data)
+        # if new_json not in file_data:
         file_data[name].append(new_json)
         file.seek(0)
         json.dump(file_data, file, indent=4)
-        #TODO dont allow duplicates
+        # TODO dont allow duplicates
