@@ -18,6 +18,31 @@ def get_single_asset(asset_contract_address, token_id):
     return df
 
 
+def gen_traits(asset):
+    #print(asset.columns)
+    trait_cards = []
+    for trait in asset['traits']:
+        print(trait)
+        card = dbc.Card(
+            dbc.CardBody(
+                [
+                    #html.H4(asset['traits.value'][trait], className="card-title"),
+                    # html.H6(asset['traits.trait_type'][trait], className="card-subtitle"),
+                    html.P(
+                        "Some quick example text",
+                        className="card-text",
+                    ),
+                ],
+                className="card-body",
+            ),
+            # style={"width": "18rem"},
+            className="card border-info col",
+        )
+        trait_cards.append(card)
+        # asset['traits.trait_count'][trait] #round up/down
+    return html.Div(trait_cards, className="col_card_grid row row-cols-4")
+
+
 def create_layout(url_query):
     # get asset corresponding to the ones the user clicked on earlier
     asset_contract_address = url_query['asset_contract_address']
@@ -68,7 +93,7 @@ def create_layout(url_query):
             dbc.ListGroupItem(
                 [
                     html.H5('price'),
-                    html.Small('0.003 ETH'), #todo
+                    html.Small('0.003 ETH'),  # todo
                 ],
 
             ),
@@ -118,15 +143,13 @@ def create_layout(url_query):
                 ),
                 dbc.AccordionItem(
                     [
-                        html.Img(src="{url}".format(url=asset['collection.image_url'])), #todo
+                        html.Img(src="{url}".format(url=asset['collection.image_url'])),  # todo
                         html.P(asset['collection.description']),
                     ],
                     title="About " + asset['collection.name'], className="accordion-item",
                 ),
                 dbc.AccordionItem(
-                    [
-                        html.P("This is the content of the second section"), #todo
-                    ],
+                    gen_traits(asset),
                     title="Traits", className="accordion-item",
                 ),
                 dbc.AccordionItem(
@@ -166,6 +189,7 @@ def create_layout(url_query):
             ),
             dbc.Button("Open on opensea", id="opensea_link", n_clicks=0, className="btn btn-primary",
                        href=f"{asset['permalink']}"),
+            html.P(asset['permalink']),
             bid_window,
             accordion,
         ],

@@ -45,7 +45,7 @@ def display_page(path_name, path_href):
         return profile.create_layout()
     elif path_name == "/upload":
         return upload.create_layout()
-    else:
+    elif path_name == "/home":
         return home.create_layout()
 
 

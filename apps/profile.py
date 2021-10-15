@@ -29,6 +29,7 @@ def create_layout():
                     'placed, and the NFTs you have upload and put for sale.', html.Br(),
                     'The display table has a built-in '
                     'sorting system']),
+            html.Div(id="output"),
             dcc.Tabs(id="profile-tabs", children=[
                 dcc.Tab(label='Favorites', value='fav-tab'),
                 dcc.Tab(label='Your active bids', value='bid-tab'),
@@ -61,6 +62,7 @@ def generate_table(data):
         style_cell={'textAlign': 'left', "whiteSpace": "pre-line"},
         style_as_list_view=True,
         editable=False,
+        row_deletable=True,
     )
 
 
@@ -130,3 +132,16 @@ def render_tabcontent(tab):
         return tab_bids()
     elif tab == 'upload-tab':
         return tab_uploads()
+
+
+@app.callback(Output('output', 'children'),
+              [Input('table', 'data_previous')],
+              [State('table', 'data')])
+def show_removed_rows(previous, current):
+    if previous is None:
+        dash.exceptions.PreventUpdate()
+    else:
+        return [f'Just removed {row}' for row in previous if row not in current]
+#todo, remove from json file
+#'asset_contract_address': '0xa2480eb41dd1f2b0abade9f305826c544d47f696',
+# 'token_id': '9964'

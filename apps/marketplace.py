@@ -64,7 +64,7 @@ def create_cardgrid(data):
         cards.append(create_card(data['image_url'][item], data['name'][item], data['collection.name'][item],
                                  data['last_sale.total_price'][item], data['token_id'][item],
                                  data['asset_contract.address'][item]))
-    return html.Div(cards, className="col_card_grid row row-cols-4")
+    return html.Div(cards, className="col_card_grid row row-cols-5")
 
 
 def create_layout():
