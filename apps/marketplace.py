@@ -130,11 +130,10 @@ def create_layout():
         children=[
             html.Div(
                 [
-                    dbc.Card([dbc.CardHeader("Filter", className="card-header"),
+                    dbc.Card([dbc.CardHeader("Filter", className="card-header text-muted"),
                               dbc.CardBody([dbc.Row([dbc.Col(c) for c in controls])], className="card-body")],
                              body=True,
                              className="card border-light mb-3"),  # create sorting controls
-
                 ],
                 className="header",
             ),

@@ -15,18 +15,21 @@ def get_single_asset(asset_contract_address, token_id):
     data = response.json()
     df = pd.json_normalize(data)
     df = pd.DataFrame(df)
-    return df
+    df_orders = pd.json_normalize(data['orders'])
+    #print(df_orders.columns)
+    pd.set_option('display.max_colwidth', None)  # extend colwidth to display whole value, instead of partial values
+    return df, df_orders
 
 
 def gen_traits(asset):
-    #print(asset.columns)
+    # print(asset.columns)
     trait_cards = []
     for trait in asset['traits']:
-        print(trait)
+        # print(trait)
         card = dbc.Card(
             dbc.CardBody(
                 [
-                    #html.H4(asset['traits.value'][trait], className="card-title"),
+                    # html.H4(asset['traits.value'][trait], className="card-title"),
                     # html.H6(asset['traits.trait_type'][trait], className="card-subtitle"),
                     html.P(
                         "Some quick example text",
@@ -48,7 +51,10 @@ def create_layout(url_query):
     asset_contract_address = url_query['asset_contract_address']
     token_id = url_query['token_id']
     dcc.Location(id='url', refresh=False),
-    asset = get_single_asset(asset_contract_address, token_id)
+    asset, asset_orders = get_single_asset(asset_contract_address, token_id)
+
+    current_price = (asset_orders['current_price'][0] / pow(10, asset_orders['payment_token_contract.decimals'][0]))
+    current_price_usd = asset_orders['current_price'][0] / pow(10, 18) * asset_orders['payment_token_contract.usd_price'][0] / asset_orders['quantity']
 
     fav_btn_heart = html.Button(id='fav_btn_hrt', className="fav-btn-hrt",
                                 children=[html.Img(
@@ -92,8 +98,16 @@ def create_layout(url_query):
             ),
             dbc.ListGroupItem(
                 [
-                    html.H5('price'),
-                    html.Small('0.003 ETH'),  # todo
+                    html.H5('Current price'),
+                    html.Div([
+                        html.Img(src='{url}'.format(url=asset_orders['payment_token_contract.image_url'][0]),
+                                 id="price_symbol"),
+                        html.Small(current_price),
+                        html.Small(f'(${current_price_usd})'),
+                        dbc.Tooltip(asset_orders['payment_token_contract.symbol'][0],
+                                    target="price_symbol",
+                                    ),
+                    ]),
                 ],
 
             ),
@@ -131,7 +145,7 @@ def create_layout(url_query):
 
     table_body = [html.Tbody([row1, row2, row3, row4])]
 
-    accordion = html.Div(
+    asset_details = html.Div(
         dbc.Accordion(
             [
                 dbc.AccordionItem(
@@ -143,7 +157,7 @@ def create_layout(url_query):
                 ),
                 dbc.AccordionItem(
                     [
-                        html.Img(src="{url}".format(url=asset['collection.image_url'])),  # todo
+                        html.Img(src="{url}".format(url=asset['collection.image_url'].to_string(index=False))),  # todo
                         html.P(asset['collection.description']),
                     ],
                     title="About " + asset['collection.name'], className="accordion-item",
@@ -155,6 +169,31 @@ def create_layout(url_query):
                 dbc.AccordionItem(
                     table_body,
                     title="Details", className="accordion-item",
+                ),
+            ],
+            flush=True,
+            className="accordion",
+        )
+    )
+
+    asset_stats = html.Div(
+        dbc.Accordion(
+            [
+                dbc.AccordionItem(
+                    html.P("text"),
+                    title="Price history", className="accordion-item",
+                ),
+                dbc.AccordionItem(
+                    html.P("text"),
+                    title="Offers", className="accordion-item",
+                ),
+                dbc.AccordionItem(
+                    html.P("text"),
+                    title="Trading history", className="accordion-item",
+                ),
+                dbc.AccordionItem(
+                    html.P("text"),
+                    title="More from this collection", className="accordion-item",
                 ),
             ],
             flush=True,
@@ -187,11 +226,11 @@ def create_layout(url_query):
                     ),
                 ]
             ),
-            dbc.Button("Open on opensea", id="opensea_link", n_clicks=0, className="btn btn-primary",
-                       href=f"{asset['permalink']}"),
-            html.P(asset['permalink']),
+            dbc.Button("Open on opensea", id="opensea_link", n_clicks=0,
+                       href='{url}'.format(url=asset['permalink'].to_string(index=False)), className="btn btn-primary"),
             bid_window,
-            accordion,
+            asset_details,
+            asset_stats,
         ],
         className="main"
     )

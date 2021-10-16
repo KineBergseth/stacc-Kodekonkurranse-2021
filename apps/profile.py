@@ -5,12 +5,13 @@ import json
 import dash_bootstrap_components as dbc
 from dash.exceptions import PreventUpdate
 from dash import Dash, callback, html, dcc, dash_table, Input, Output, State, MATCH, ALL
-from dash_table.Format import Format, Scheme, Sign, Symbol
+from dash.dash_table.Format import Format, Scheme, Sign, Symbol
+from dash import dash_table
 import random
 
 from app import app
 
-user = html.P(' lizardlover23')
+user = html.P('lizardlover23')
 
 
 # usename
