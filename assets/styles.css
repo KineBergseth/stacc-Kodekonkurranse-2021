@@ -1,30 +1,29 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
-
 .carousel {
-    width: 50vw;
+    max-width: 40vw;
     margin-left: auto;
     margin-right: auto;
+
 }
 
-.NFT-src img {
+.NFT-src img { /* what is this*/
     width: 25vw;
     height: auto;
 }
 
-.collection_buttons { /* keep this */
+.collection_buttons {
     display: flex;
     justify-content: space-around;
     flex-wrap: wrap;
     margin-bottom: 5vh;
 }
 
-.col-btn { /* keep this */
+.col-btn {
     background-color: transparent;
     border: none;
 
 }
 
-.col-btn img{ /* keep this */
+.col-btn img{
     border-radius: 150px;
 	-webkit-border-radius: 150px;
 	-moz-border-radius: 150px;
@@ -35,7 +34,7 @@
 
 }
 
-.col-btn:hover { /* keep this */
+.col-btn:hover {
     opacity: 0.7;
     transition: opacity 0.3s ease-in-out;
   -webkit-transition: opacity 0.3s ease-in-out; /* Safari */

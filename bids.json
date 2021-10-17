@@ -24,6 +24,16 @@
             "asset_contract_address": "0xce25e60a89f200b1fa40f6c313047ffe386992c3",
             "token_id": "4343",
             "price": "33"
+        },
+        {
+            "asset_contract_address": "0x395fc9db003e58b804188155dc7e0e609a062f61",
+            "token_id": "7666",
+            "price": "1.8"
+        },
+        {
+            "asset_contract_address": "0x495f947276749ce646f68ac8c248420045cb7b5e",
+            "token_id": "63389814796431140271882538879984655106744147143831287279045017400396897845249",
+            "price": "1.6"
         }
     ]
 }

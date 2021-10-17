@@ -1,9 +1,7 @@
-import dash
 import dash_bootstrap_components as dbc
 import requests
 import pandas as pd
-from dash import Dash, callback, html, dcc, dash_table, Input, Output, State, MATCH, ALL
-from app import app
+from dash import html
 
 
 def get_new_auction():
@@ -30,8 +28,6 @@ def create_slides(data):
     """
     slides = []
     for item in data.index:
-        # dcc.Link('Go to profile', href='/profile')
-        #asset_link = html.A('{name}'.format(name=data['asset.name'][item]), href='/asset?asset_contract_address={address}&token_id={token_id}'.format(address=data['asset.contract_address'][item], token_id=data['asset.token_id'][item]))
         slides.append({
             "key": item,
             "src": data['asset.image_url'][item],
@@ -57,8 +53,7 @@ def create_layout():
                     [
                         html.H5("Explore", className="card-title text-center"),
                         html.P(
-                            "Browse thousands of NFTs on our marketplace, and put in bids"
-                            "Discover collections",
+                            "Browse thousands of NFTs on our marketplace, and discover different collections",
                             className="card-text",
                         ),
                         dbc.CardLink("marketplace", href="/marketplace", className="card-link"),
@@ -90,14 +85,15 @@ def create_layout():
                     ]
                 )
             ),
-        ]
+        ],
+        className="mt-5",
     )
 
     return html.Div(
-        children=[
+        [
             html.Div(
                 [
-                    html.H1('New auctions', id='header-text text-center'),
+                    html.H1('New auctions', className='header-text text-center mt-3'),
                 ],
                 className="header",
             ),

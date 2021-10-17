@@ -139,7 +139,7 @@ def create_layout(url_query):
                     dbc.InputGroupText("ETH"),
                 ],
             ),
-            html.P(id="output_msg_bid"),
+            html.P(id="output_msg_bid", className="text-center"),
             dbc.ModalFooter([
                 dbc.Button(
                     "Confirm", id="confirm_bid", className="ml-auto btn btn-success", n_clicks=0

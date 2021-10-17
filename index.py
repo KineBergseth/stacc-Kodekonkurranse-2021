@@ -23,7 +23,7 @@ app.layout = html.Div(
         dcc.Location(id="url", refresh=False),
         Navbar(),
         html.Div(
-            id="main-content", className="mx-sm-5"
+            id="main-content", className="mx-sm-5 mb-5"
         )
     ])
 

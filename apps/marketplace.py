@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
 import dash_bootstrap_components as dbc
-from dash import Dash, callback, html, dcc, dash_table, Input, Output, State, MATCH, ALL
+from dash import html, Input, Output
 from app import app
 
 
@@ -17,8 +17,8 @@ def convert_slugs(snake_case):
 def convert_price(price):
     """
     Convert currency value from WEI to ETH if its not nan
-    :param price:
-    :return:
+    :param price: amount in WEI
+    :return: amount in ETH
     """
     if pd.isna(price):
         return price
@@ -27,6 +27,10 @@ def convert_price(price):
 
 
 def get_collection_slug():
+    """
+    Get a set of 300 slugs to display in the collections dropdownlist
+    :return: list of 300 unique slugs
+    """
     url = "https://api.opensea.io/api/v1/collections?offset=0&limit=300"
     response = requests.request("GET", url)
     data = response.json()
@@ -37,6 +41,15 @@ def get_collection_slug():
 
 
 def get_assets(order_by, order_direction, offset, limit, collection):
+    """
+    Get assets to display on page
+    :param order_by: how to order the assets
+    :param order_direction: asc/desc direction
+    :param offset: offset for request
+    :param limit: how many assets are shown on the page
+    :param collection: unique slug that gets assets belonging to that collection
+    :return: dataframe containing data about all assets fetched
+    """
     url = "https://api.opensea.io/api/v1/assets"
     querystring = {"order_by": f"{order_by}", "order_direction": f"{order_direction}", "offset": f"{offset}",
                    "limit": f"{limit}", "collection": f"{collection}"}
@@ -53,6 +66,16 @@ def get_assets(order_by, order_direction, offset, limit, collection):
 
 
 def create_card(card_img, card_collection, card_title, card_price, token_id, asset_contract_address):
+    """
+    Create a card with data about a specific NFT
+    :param card_img: image link
+    :param card_collection: collection name
+    :param card_title: name of NFT
+    :param card_price: price from last sale in ETH
+    :param token_id: token id for NFT
+    :param asset_contract_address:  contract address for NFT
+    :return: html with data for an asset
+    """
     asset_link = dbc.CardLink("{name}".format(name=card_title),
                               href="/asset?asset_contract_address={address}&token_id={token_id}".format(
                                   address=asset_contract_address, token_id=token_id))
@@ -68,11 +91,16 @@ def create_card(card_img, card_collection, card_title, card_price, token_id, ass
                 className="card-body",
             ),
         ],
-        className="card border-primary col"
+        className="card border-secondary col"
     )
 
 
 def create_cardgrid(data):
+    """
+    Create cardgrid with a card for each asset
+    :param data: dataframe containing asset data
+    :return: html grid containing all the individual cards
+    """
     cards = []
     for item in data.index:
         cards.append(create_card(data['image_url'][item], data['name'][item], data['collection.name'][item],
@@ -84,8 +112,9 @@ def create_cardgrid(data):
 def create_layout():
     collections = get_collection_slug()
     # sale_price param does not work on query - status 500 internal service error
-    order_by_list = ['pk', 'sale_date', 'sale_count']
+    order_by_list = ['pk', 'sale_date', 'sale_count']  # order choices
 
+    # create filter controls
     controls = [
         html.Div(
             [
@@ -165,9 +194,16 @@ def create_layout():
      Input("asset_pagination", "active_page")]
 )
 def update_grid(collection, order_by, order_direction, page_no):
+    """
+    Takes input and creates the grid based on choices or default values
+    :param collection: collection name
+    :param order_by: order of assets
+    :param order_direction: asc/desc
+    :param page_no: the current page number, for pagination/offset
+    :return: card grid with data matching applied filter
+    """
     limit = 20
     page_no = page_no
     offset = (page_no * limit) - limit
-    # collection = ""
     assets = get_assets(order_by, order_direction, offset, limit, collection)
     return create_cardgrid(assets)

@@ -3,7 +3,7 @@ import pandas as pd
 import dash
 import dash_bootstrap_components as dbc
 from dash.exceptions import PreventUpdate
-from dash import Dash, callback, html, dcc, dash_table, Input, Output, State, MATCH, ALL
+from dash import html, dcc, Input, Output
 from app import app
 
 
@@ -56,11 +56,11 @@ def get_collection(offset, limit, slug):
 
 def create_card(card_img, card_title, token_id, asset_contract_address):
     """
-
-    :param card_img:
-    :param card_title:
-    :param token_id:
-    :param asset_contract_address:
+    Create individual cards for an NFT
+    :param card_img: the img link
+    :param card_title: NFT name
+    :param token_id: NFT token_id
+    :param asset_contract_address: NFT contract address
     :return: a card containing information about a specific NFT
     """
     asset_link = dbc.CardLink("{name}".format(name=card_title),
@@ -76,17 +76,17 @@ def create_card(card_img, card_title, token_id, asset_contract_address):
                 className="card-body",
             ),
         ],
-        className="card border-primary col" #mb-3
+        className="card border-secondary col"
     )
 
 
 def create_cardgrid(offset, limit, slug):
     """
     Creates a grid of cards
-    :param offset:
-    :param limit:
-    :param slug:
-    :return: grid containing cards
+    :param offset: offset for request
+    :param limit: the amount of NFT to be shown on the page
+    :param slug: unique ID for a specific collection
+    :return: card grid containing cards
     """
     data = get_collection(offset, limit, slug)
     cards = []
@@ -102,11 +102,11 @@ def create_layout():
     :return: layout with all the elements in
     """
     return html.Div(
-        children=[
+        [
             dcc.Store(id='slug_memory'),  # local storage for collection slug value
             html.Div(
                 [
-                    html.H1('Collections', className="text-center"),
+                    html.H1('Collections', className="text-center mt-3"),
                     html.P('Utforsk noen utvalgte collections. Trykk på bildeknappene for å se samlingene', className="text-center"),
                     generate_img_buttons(),
                 ],
