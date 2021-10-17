@@ -2,125 +2,153 @@ import dash
 from app import app
 import datetime
 import json
+import random
+import base64
+import os
+import string
+import secrets
+from datetime import datetime
+import pandas as pd
+import dash_bootstrap_components as dbc
 from dash import Dash, callback, html, dcc, dash_table, Input, Output, State, MATCH, ALL
 
 
-# test_base64 =
-
-
-upload_img = html.Div([
-    dcc.Upload(
-        id='upload-image',
-        children=html.Div([
-            'Drag and Drop or ',
-            html.A('Select Files')
-        ]),
-        style={
-            'width': '100%',
-            'height': '60px',
-            'lineHeight': '60px',
-            'borderWidth': '1px',
-            'borderStyle': 'dashed',
-            'borderRadius': '5px',
-            'textAlign': 'center',
-            'margin': '10px'
-        },
-        # Allow multiple files to be uploaded
-        multiple=True
-    ),
-    html.Div(id='output-image-upload'),
-])
-
-
-def parse_contents(contents, filename, date):
-    print(contents)
-    return html.Div([
-        html.H5(filename),
-        html.H6(datetime.datetime.fromtimestamp(date)),
-
-        # HTML images accept base64 encoded strings in the same format
-        # that is supplied by the upload
-        html.Img(src=contents),
-        html.Hr(),
-        html.Div('Raw Content'),
-        html.Pre(contents[0:200] + '...', style={
-            'whiteSpace': 'pre-wrap',
-            'wordBreak': 'break-all'
-        })
+def create_layout():
+    upload_nft_img = html.Div([
+        dcc.Upload(
+            id='upload-nft-img',
+            children=html.Div([
+                'Drag & drop or ',
+                html.A('Select file to upload')
+            ]),
+            style={  # todo make resposive
+                'width': '100%',
+                'height': '60px',
+                'lineHeight': '60px',
+                'borderWidth': '1px',
+                'borderStyle': 'dashed',
+                'borderRadius': '5px',
+                'textAlign': 'center',
+                'margin': '10px'
+            },
+            multiple=False
+        )
     ])
 
+    name_input = html.Div(
+        [
+            dbc.Label("Name"),
+            dbc.Input(type="text", id="nft-name", placeholder="Enter name"),
+        ],
+        className="mb-3",
+    )
 
-def create_layout():
+    desc_input = html.Div(
+        [
+            dbc.Label("Description"),
+            dbc.Input(
+                type="text",
+                id="nft-desc",
+                placeholder="Enter description",
+            ),
+        ],
+        className="mb-3",
+    )
+
+    input_form = dbc.Form([name_input, desc_input])
+
     return html.Div(
         children=[
-            # HEADER
             html.Div(
-                children=[
-                    html.H1('NFT', id='header-text'),
-                ],
+                html.H1('Upload NFT', id='header-text'),
                 className="header",
             ),
-            # INFO
-            html.Div(id="content"),
-            upload_img,
+            upload_nft_img,
+            input_form,
+            dbc.Button(
+                "Upload", id="upload_nft", className="ml-auto", n_clicks=0,
+            ),
+            html.Div(id='nft-data-upload'),
+
         ],
         className="main"
-
     )
 
 
-@app.callback(Output('output-image-upload', 'children'),
-              Input('upload-image', 'contents'),
-              State('upload-image', 'filename'),
-              State('upload-image', 'last_modified'))
-def update_output(list_of_contents, list_of_names, list_of_dates):
-    if list_of_contents is not None:
-        children = [
-            parse_contents(c, n, d) for c, n, d in
-            zip(list_of_contents, list_of_names, list_of_dates)]
-        return children
-
-
+def random_data_gen(length):
+    """
+    Generate random metadata using secure random string. With cryptography no string generated will be the same result
+    :param length: length of generated string
+    :return: randomized string containing letters and numbers
+    """
+    metadata = ''.join(secrets.choice(string.ascii_letters + string.digits) for x in range(length))
+    return str(metadata)
 
 
 @app.callback(
-    Output("output_upload", "children"),
-    [Input("upload_btn", "n_clicks")]
+    Output("nft-data-upload", "children"),
+    [Input("upload_nft", "n_clicks"),
+     Input("nft-name", "value"),
+     Input("nft-desc", "value"),
+     Input('upload-nft-img', 'filename'),
+     Input('upload-nft-img', 'contents')
+     ]
 )
-def add_favourite(n_upload, image_url, name, description):
+def add_favourite(n_upload, name, description, filename, image_url):
+
     if n_upload:
-        upload_asset = {
-            "id": 68079114,  # generate
-            "token_id": "67222163736366812115248145867153913994637167072440910807912450046197447524353", # generate
-            "image_url": image_url,
-            "name": name,
-            "description": description,
-            "asset_contract": {
-                "address": "0x495f947276749ce646f68ac8c248420045cb7b5e", # generate
-                "asset_contract_type": "semi-fungible",
-                "created_date": "2020-12-02T17:40:53.232025", # get current time/date
-                "name": "Stacc Collection",
-                "owner": 102384,
-                "schema_name": "ERC1155",
-                "symbol": "OPENSTORE"
-            },
-            "owner": {
-                "user": {
-                    "username": "lizardlover23"
+        if image_url is None:
+            return html.P("Please upload nft file")
+        else:
+            id = random_data_gen(8)
+            token_id = random_data_gen(60)
+            contract_address = f"0x{random_data_gen(40)}"
+            date = datetime.now()
+            upload_asset = {
+                "id": id,
+                "token_id": token_id,
+                "image_url": image_url,
+                "name": name,
+                "description": description,
+                "asset_contract": {
+                    "address": contract_address,
+                    "asset_contract_type": "semi-fungible",
+                    "created_date": str(date),
+                    "name": "Stacc Collection",
+                    "owner": 1920133,
+                    "schema_name": "ERC1155",
+                    "symbol": "STACC"
+                },
+                "owner": {
+                    "user": {
+                        "username": "lizardlover23"
+                    }
                 }
             }
-        }
-        write_json(upload_asset, 'uploaded_nfts', 'uploads.json')
-        return "wohoo"
+            write_json(upload_asset, 'uploaded_nfts', 'uploads.json')
+
+            row1 = html.Tr([html.Td("id"), html.Td(upload_asset['id'])])
+            row2 = html.Tr([html.Td("token id"), html.Td(upload_asset['token_id'])])
+            row3 = html.Tr([html.Td("name"), html.Td(upload_asset['name'])])
+            row4 = html.Tr([html.Td("description"), html.Td(upload_asset['description'])])
+            row5 = html.Tr([html.Td("asset contract address"), html.Td(upload_asset['asset_contract']['address'])])
+            row6 = html.Tr([html.Td("asset contract type"), html.Td(upload_asset['asset_contract']['asset_contract_type'])])
+            row7 = html.Tr([html.Td("created_date"), html.Td(upload_asset['asset_contract']['created_date'])])
+            row8 = html.Tr([html.Td("asset contract name"), html.Td(upload_asset['asset_contract']['name'])])
+            row9 = html.Tr([html.Td("asset contract owner"), html.Td(upload_asset['asset_contract']['owner'])])
+            row10 = html.Tr([html.Td("schema_name"), html.Td(upload_asset['asset_contract']['schema_name'])])
+            row11 = html.Tr([html.Td("symbol"), html.Td(upload_asset['asset_contract']['symbol'])])
+            row12 = html.Tr([html.Td("owner"), html.Td(upload_asset['owner']['user']['username'])])
+            table_body = [html.Tbody([row1, row2, row3, row4, row5, row6, row7, row8, row9, row10, row11, row12])]
+            return html.Div([
+                html.Img(src=image_url),
+                dbc.Table(table_body, bordered=True)
+            ])
 
 
 def write_json(new_json, name, filename):
     with open(filename, 'r+') as file:
-        # print(new_json)
         file_data = json.load(file)  # load data into dict
-        # print(file_data)
-        # if new_json not in file_data:
         file_data[name].append(new_json)
         file.seek(0)
         json.dump(file_data, file, indent=4)
-        # TODO dont allow duplicates
