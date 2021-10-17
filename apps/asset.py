@@ -119,12 +119,6 @@ def create_layout(url_query):
             float)
         asset_orders['quantity'] = asset_orders['quantity'].astype(int)
 
-    fav_btn_heart = html.Button(id='fav_btn_hrt', className="fav-btn-hrt",
-                                children=[html.Img(
-                                    src='data:image/svg+xml;base64,'
-                                        'PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0xMiAyMS41OTNjLTUuNjMtNS41MzktMTEtMTAuMjk3LTExLTE0LjQwMiAwLTMuNzkxIDMuMDY4LTUuMTkxIDUuMjgxLTUuMTkxIDEuMzEyIDAgNC4xNTEuNTAxIDUuNzE5IDQuNDU3IDEuNTktMy45NjggNC40NjQtNC40NDcgNS43MjYtNC40NDcgMi41NCAwIDUuMjc0IDEuNjIxIDUuMjc0IDUuMTgxIDAgNC4wNjktNS4xMzYgOC42MjUtMTEgMTQuNDAybTUuNzI2LTIwLjU4M2MtMi4yMDMgMC00LjQ0NiAxLjA0Mi01LjcyNiAzLjIzOC0xLjI4NS0yLjIwNi0zLjUyMi0zLjI0OC01LjcxOS0zLjI0OC0zLjE4MyAwLTYuMjgxIDIuMTg3LTYuMjgxIDYuMTkxIDAgNC42NjEgNS41NzEgOS40MjkgMTIgMTUuODA5IDYuNDMtNi4zOCAxMi0xMS4xNDggMTItMTUuODA5IDAtNC4wMTEtMy4wOTUtNi4xODEtNi4yNzQtNi4xODEiLz48L3N2Zz4=')]),
-    fav_btn = dbc.Button('Save', id='fav_btn', className="fav-btn", color='dark')
-
     def create_cardgrid():
         data = get_more_from_collection(asset['collection.slug'].to_string(index=False))
         cards = []
@@ -137,7 +131,8 @@ def create_layout(url_query):
     bid_window = dbc.Modal(
         [
             dbc.ModalHeader("Bid"),
-            dbc.ModalBody("Put in your bid. Decimals are indicated with ."),
+            dbc.ModalBody([html.P("Put in your bid. Decimals are indicated with ."),
+                           html.P(f"You must bid higher than current price")]),
             dbc.InputGroup(
                 [
                     dbc.Input(id="bid_amount", placeholder="Amount", type="number"),
@@ -147,7 +142,7 @@ def create_layout(url_query):
             html.P(id="output_msg_bid"),
             dbc.ModalFooter([
                 dbc.Button(
-                    "Confirm", id="confirm_bid", className="ml-auto", n_clicks=0, color="dark"
+                    "Confirm", id="confirm_bid", className="ml-auto btn btn-success", n_clicks=0
                 ),
                 dbc.Button(
                     "Close", id="close_modal", className="ml-auto", n_clicks=0,
@@ -159,37 +154,29 @@ def create_layout(url_query):
         is_open=False,
     )
 
-    list_group = dbc.ListGroup(
+    asset_info = dbc.ListGroup(
         [
             dbc.ListGroupItem(
                     html.H5(asset['name']),
 
             ),
+            dbc.ListGroupItem(
+                html.H5("Expiration date"),
+            ),
             calculate_price(asset_orders),
             dbc.ListGroupItem(
                 [
-                    html.H5('Save', id="tooltip-favourites"),
-                    html.Div(fav_btn),
+                    dbc.Button("Place a bid", id="open", n_clicks=0, className="btn btn-primary"),
+                    dbc.Button('Save', id='fav_btn', className="btn btn-primary"),
                     html.P(id="output_fav"),
                 ],
 
             ),
             dbc.Tooltip(
                 "You can find a list of your saved assets on your profile",
-                target="tooltip-favourites",
+                target="fav_btn",
             ),
         ],
-    )
-
-    card = dbc.Card(
-        dbc.CardBody(
-            [
-                list_group,
-                dbc.Button("Place a bid", id="open", n_clicks=0, className="btn btn-primary"),
-            ]
-        ),
-        # style={"width": "18rem"},
-        className="border-light",
     )
 
     address_link = html.A("{name}".format(name=asset['asset_contract.address'].to_string(index=False)), href='https://etherscan.io/address/{address}'.format(address=asset['asset_contract.address'].to_string(index=False)))
@@ -262,15 +249,25 @@ def create_layout(url_query):
                 [
                     dbc.Row(
                         [
-                            dbc.Col(html.Div(html.Div(html.Img(src='{img_url}'.format(img_url=asset['image_url'][0])),
-                                                      className="NFT-src"))),
-                            dbc.Col(html.Div(card)),
+                            dbc.Card(
+                                [
+                                    dbc.CardImg(src='{img_url}'.format(img_url=asset['image_url'][0]), top=True),
+                                    dbc.CardBody(
+                                            dbc.Button("Open on opensea", id="opensea_link", n_clicks=0,
+                                                       href='{url}'.format(
+                                                           url=asset['permalink'].to_string(index=False)),
+                                                       className="btn btn-primary")
+                                    ),
+                                ],
+                                style={"width": "18rem"},
+                                className="card border-light",
+                            ),
+                            dbc.Col(asset_info),
                         ]
                     ),
                 ]
             ),
-            dbc.Button("Open on opensea", id="opensea_link", n_clicks=0,
-                       href='{url}'.format(url=asset['permalink'].to_string(index=False)), className="btn btn-primary"),
+
             bid_window,
             asset_details,
             asset_stats,
@@ -315,8 +312,11 @@ def accept_bid(n_confirm, asset, n_amount):
             "token_id": "{id}".format(id=asset['token_id']),
             "price": "{price}".format(price=n_amount)
         }
-        write_json(bid_asset, 'bids', 'bids.json')
-        return f"Bid of {n_amount} ETH accepted!"
+        add = write_json(bid_asset, 'bids', 'bids.json')
+        if add:
+            return f"Bid of {n_amount} ETH accepted!"
+        else:
+            return "Cannot accept a new bid directly after your own"
 
 
 @app.callback(
@@ -331,16 +331,22 @@ def add_favourite(n_fav, asset):
             "token_id": "{id}".format(id=asset['token_id']),
         }
         write_json(fav_asset, 'favourites', 'favourites.json')
-        return "wohoo"
 
 
 def write_json(new_json, name, filename):
     with open(filename, 'r+') as file:
-        # print(new_json)
         file_data = json.load(file)  # load data into dict
-        # print(file_data)
-        # if new_json not in file_data:
-        file_data[name].append(new_json)
-        file.seek(0)
-        json.dump(file_data, file, indent=4)
-        # TODO dont allow duplicates
+        add = True
+        for x in file_data[name]:
+            if (new_json['asset_contract_address'] == x['asset_contract_address'] and new_json['token_id'] == x['token_id']):
+        #if not any([new_json['asset_contract_address'] == x['asset_contract_address']):
+                add = False
+        if add:
+            file_data[name].append(new_json)
+            file.seek(0)
+            json.dump(file_data, file, indent=4)
+            print('yay')
+            return True
+        else:
+            print('error error error')
+            return False

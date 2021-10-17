@@ -14,8 +14,8 @@ def get_events(offset, event_type):
     df = pd.json_normalize(data['asset_events'])
     df = pd.DataFrame(df)
     # df_orders = pd.json_normalize(data['orders'])
-    print(df)
-    print(df.columns)
+    #print(df)
+    #print(df.columns)
     col_list = []
     #df = pd.DataFrame(df, columns=col_list)
     pd.set_option('display.max_colwidth', None)  # extend colwidth to display whole value, instead of partial values
