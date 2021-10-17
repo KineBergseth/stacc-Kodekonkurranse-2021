@@ -71,14 +71,15 @@ def create_layout():
         [
             html.Div(
                 [
-                    html.H1('Activity', id='header-text text-center mt-3'),
+                    html.H1('Activity', className='header-text text-center mt-3'),
                     dbc.ButtonGroup(
                         [
                             dbc.Button("Listings", id="created", outline=True, color="primary"),
                             dbc.Button("Sales", id="successful", outline=True, color="primary"),
                             dbc.Button("Bids", id="bid_entered", outline=True, color="primary"),
                             dbc.Button("Transfers", id="transfer", outline=True, color="primary"),
-                        ]
+                        ],
+                        className="mt-3 mb-3",
                     )
                 ],
                 className="header",
