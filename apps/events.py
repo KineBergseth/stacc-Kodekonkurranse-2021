@@ -102,7 +102,7 @@ def update_table(n_listings, n_sales, n_bids, n_transfers):
     if not ctx.triggered:
         raise PreventUpdate
     else:
-        button_id = ctx.triggered[0]['prop_id'].split('.')[0]  # get btn id for slug
+        button_id = ctx.triggered[0]['prop_id'].split('.')[0]  # get btn id for event type
         print(button_id)
         data = get_events(button_id)
         return generate_table(data)

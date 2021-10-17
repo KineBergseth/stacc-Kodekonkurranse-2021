@@ -1,14 +1,19 @@
 import requests
 import pandas as pd
-import dash
 import json
 import dash_bootstrap_components as dbc
-from urllib.parse import urlparse, parse_qsl, urlencode
-from dash import Dash, callback, html, dcc, dash_table, Input, Output, State, MATCH, ALL
+from urllib.parse import urlparse, parse_qsl
+from dash import html, dcc, Input, Output, State
 from app import app
 
 
 def get_single_asset(asset_contract_address, token_id):
+    """
+    Get a single asset
+    :param asset_contract_address:
+    :param token_id:
+    :return: dataframe with asset data
+    """
     url = "https://api.opensea.io/api/v1/asset/{asset_contract_address}/{token_id}/".format(
         asset_contract_address=asset_contract_address, token_id=token_id)
     response = requests.request("GET", url)
@@ -21,6 +26,11 @@ def get_single_asset(asset_contract_address, token_id):
 
 
 def get_more_from_collection(collection):
+    """
+    Get 5 similar NFTs from the same collection
+    :param collection: colleciton id/slug
+    :return: dataframe with data
+    """
     url = "https://api.opensea.io/api/v1/assets"
     querystring = {"limit": "5", "collection": f"{collection}"}
     response = requests.request("GET", url, params=querystring)
@@ -31,6 +41,7 @@ def get_more_from_collection(collection):
     return df
 
 
+# create card with image and button to opensea
 def create_card(card_img, card_title, token_id, asset_contract_address):
     asset_link = dbc.CardLink("{name}".format(name=card_title),
                               href="/asset?asset_contract_address={address}&token_id={token_id}".format(
@@ -48,6 +59,11 @@ def create_card(card_img, card_title, token_id, asset_contract_address):
 
 
 def gen_traits(asset):
+    """
+    Generate trait grid
+    :param asset: asset data
+    :return: a trait card for every trait the NFT possesses
+    """
     if asset["traits"].to_string(index=False) == '[]':  # maybe not the prettiest way to check if traits exists
         return html.P("This NFT has no traits")
     else:
@@ -75,6 +91,11 @@ def gen_traits(asset):
 
 
 def calculate_price(asset_orders):
+    """
+    Convert prices from wei to ETH and usd
+    :param asset_orders: asset order details
+    :return: html to render currency amount
+    """
     if 'current_price' in asset_orders.columns:
         current_price = (
                     asset_orders['current_price'][0] / pow(10, asset_orders['payment_token_contract.decimals'][0]))
@@ -163,8 +184,8 @@ def create_layout(url_query):
             calculate_price(asset_orders),
             dbc.ListGroupItem(
                 [
-                    dbc.Button("Place a bid", id="open", n_clicks=0, className="btn btn-primary"),
-                    dbc.Button('Save', id='fav_btn', className="btn btn-primary"),
+                    dbc.Button("Place a bid", id="open", n_clicks=0, className="btn btn-primary w-50"),
+                    dbc.Button('Save', id='fav_btn', className="btn btn-info"),
                     html.P(id="output_fav"),
                 ],
 
@@ -172,6 +193,7 @@ def create_layout(url_query):
             dbc.Tooltip(
                 "You can find a list of your saved assets on your profile",
                 target="fav_btn",
+                placement="top",
             ),
         ],
     )
@@ -247,7 +269,7 @@ def create_layout(url_query):
             bid_window,
             asset_details,
         ],
-        className="main"
+        className="main mt-3"
     )
 
 
