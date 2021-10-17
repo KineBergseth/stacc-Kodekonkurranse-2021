@@ -22,7 +22,7 @@ def get_single_asset(asset_contract_address, token_id):
 
 def get_more_from_collection(collection):
     url = "https://api.opensea.io/api/v1/assets"
-    querystring = {"limit": "3", "collection": f"{collection}"}
+    querystring = {"limit": "5", "collection": f"{collection}"}
     response = requests.request("GET", url, params=querystring)
     data = response.json()
     df = pd.json_normalize(data['assets'])
@@ -126,7 +126,7 @@ def create_layout(url_query):
             cards.append(create_card(data['image_url'][item], data['name'][item],
                                      data['token_id'][item],
                                      data['asset_contract.address'][item]))
-        return html.Div(cards, className="col_card_grid row row-cols-3")
+        return html.Div(cards, className="col_card_grid row row-cols-5")
 
     bid_window = dbc.Modal(
         [
@@ -159,9 +159,6 @@ def create_layout(url_query):
             dbc.ListGroupItem(
                     html.H5(asset['name']),
 
-            ),
-            dbc.ListGroupItem(
-                html.H5("Expiration date"),
             ),
             calculate_price(asset_orders),
             dbc.ListGroupItem(
@@ -211,27 +208,6 @@ def create_layout(url_query):
                     table_body,
                     title="Details", className="accordion-item",
                 ),
-            ],
-            flush=True,
-            className="accordion",
-        )
-    )
-
-    asset_stats = html.Div(
-        dbc.Accordion(
-            [
-                dbc.AccordionItem(
-                    html.P("text"),
-                    title="Price history", className="accordion-item",
-                ),
-                dbc.AccordionItem(
-                    html.P("text"),
-                    title="Offers", className="accordion-item",
-                ),
-                dbc.AccordionItem(
-                    html.P("text"),
-                    title="Trading history", className="accordion-item",
-                ),
                 dbc.AccordionItem(
                     create_cardgrid(),
                     title="More from this collection", className="accordion-item",
@@ -270,7 +246,6 @@ def create_layout(url_query):
 
             bid_window,
             asset_details,
-            asset_stats,
         ],
         className="main"
     )
@@ -339,7 +314,6 @@ def write_json(new_json, name, filename):
         add = True
         for x in file_data[name]:
             if (new_json['asset_contract_address'] == x['asset_contract_address'] and new_json['token_id'] == x['token_id']):
-        #if not any([new_json['asset_contract_address'] == x['asset_contract_address']):
                 add = False
         if add:
             file_data[name].append(new_json)

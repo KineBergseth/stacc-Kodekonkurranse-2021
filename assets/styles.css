@@ -5,11 +5,6 @@
 
 }
 
-.NFT-src img { /* what is this*/
-    width: 25vw;
-    height: auto;
-}
-
 .collection_buttons {
     display: flex;
     justify-content: space-around;
