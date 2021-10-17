@@ -53,4 +53,4 @@ def display_page(path_name, path_href):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)

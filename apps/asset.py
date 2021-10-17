@@ -217,7 +217,7 @@ def create_layout(url_query):
                 ),
                 dbc.AccordionItem(
                     [
-                        html.Img(src="{url}".format(url=asset['collection.image_url'].to_string(index=False))),  # todo
+                        html.Img(src="{url}".format(url=asset['collection.image_url'].to_string(index=False))),
                         html.P(asset['collection.description']),
                     ],
                     title="About " + asset['collection.name'], className="accordion-item",
