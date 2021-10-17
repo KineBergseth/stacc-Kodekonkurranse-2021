@@ -16,9 +16,39 @@ def get_single_asset(asset_contract_address, token_id):
     df = pd.json_normalize(data)
     df = pd.DataFrame(df)
     df_orders = pd.json_normalize(data['orders'])
-    #print(df_orders.columns)
+    # convert values to float/int to calculate prices later
+    df_orders['current_price'] = df_orders['current_price'].astype(float)
+    df_orders['payment_token_contract.usd_price'] = df_orders['payment_token_contract.usd_price'].astype(float)
+    df_orders['quantity'] = df_orders['quantity'].astype(int)
     pd.set_option('display.max_colwidth', None)  # extend colwidth to display whole value, instead of partial values
     return df, df_orders
+
+
+def get_more_from_collection(collection):
+    url = "https://api.opensea.io/api/v1/assets"
+    querystring = {"limit": "3", "collection": f"{collection}"}
+    response = requests.request("GET", url, params=querystring)
+    data = response.json()
+    df = pd.json_normalize(data['assets'])
+    col_list = ['id', 'token_id', 'name', 'image_url', 'asset_contract.address']
+    df = pd.DataFrame(df, columns=col_list)
+    return df
+
+
+def create_card(card_img, card_title, token_id, asset_contract_address):
+    asset_link = dbc.CardLink("{name}".format(name=card_title),
+                              href="/asset?asset_contract_address={address}&token_id={token_id}".format(
+                                  address=asset_contract_address, token_id=token_id))
+    return dbc.Card(
+        [
+            dbc.CardImg(src=card_img, top=True),
+            dbc.CardBody(
+                html.H4(asset_link, className="card-title"),
+                className="card-body",
+            ),
+        ],
+        className="card border-primary col"
+    )
 
 
 def gen_traits(asset):
@@ -54,13 +84,23 @@ def create_layout(url_query):
     asset, asset_orders = get_single_asset(asset_contract_address, token_id)
 
     current_price = (asset_orders['current_price'][0] / pow(10, asset_orders['payment_token_contract.decimals'][0]))
-    current_price_usd = asset_orders['current_price'][0] / pow(10, 18) * asset_orders['payment_token_contract.usd_price'][0] / asset_orders['quantity']
-
+    current_price_usd = (((asset_orders['current_price'][0] / pow(10,
+                                                                  asset_orders['payment_token_contract.decimals'][0])) *
+                          asset_orders['payment_token_contract.usd_price'][0]) / asset_orders['quantity'][0])
     fav_btn_heart = html.Button(id='fav_btn_hrt', className="fav-btn-hrt",
                                 children=[html.Img(
                                     src='data:image/svg+xml;base64,'
                                         'PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0xMiAyMS41OTNjLTUuNjMtNS41MzktMTEtMTAuMjk3LTExLTE0LjQwMiAwLTMuNzkxIDMuMDY4LTUuMTkxIDUuMjgxLTUuMTkxIDEuMzEyIDAgNC4xNTEuNTAxIDUuNzE5IDQuNDU3IDEuNTktMy45NjggNC40NjQtNC40NDcgNS43MjYtNC40NDcgMi41NCAwIDUuMjc0IDEuNjIxIDUuMjc0IDUuMTgxIDAgNC4wNjktNS4xMzYgOC42MjUtMTEgMTQuNDAybTUuNzI2LTIwLjU4M2MtMi4yMDMgMC00LjQ0NiAxLjA0Mi01LjcyNiAzLjIzOC0xLjI4NS0yLjIwNi0zLjUyMi0zLjI0OC01LjcxOS0zLjI0OC0zLjE4MyAwLTYuMjgxIDIuMTg3LTYuMjgxIDYuMTkxIDAgNC42NjEgNS41NzEgOS40MjkgMTIgMTUuODA5IDYuNDMtNi4zOCAxMi0xMS4xNDggMTItMTUuODA5IDAtNC4wMTEtMy4wOTUtNi4xODEtNi4yNzQtNi4xODEiLz48L3N2Zz4=')]),
     fav_btn = dbc.Button('Save', id='fav_btn', className="fav-btn", color='dark')
+
+    def create_cardgrid():
+        data = get_more_from_collection(asset['collection.slug'].to_string(index=False))
+        cards = []
+        for item in data.index:
+            cards.append(create_card(data['image_url'][item], data['name'][item],
+                                     data['token_id'][item],
+                                     data['asset_contract.address'][item]))
+        return html.Div(cards, className="col_card_grid row row-cols-3")
 
     bid_window = dbc.Modal(
         [
@@ -192,7 +232,7 @@ def create_layout(url_query):
                     title="Trading history", className="accordion-item",
                 ),
                 dbc.AccordionItem(
-                    html.P("text"),
+                    create_cardgrid(),
                     title="More from this collection", className="accordion-item",
                 ),
             ],
