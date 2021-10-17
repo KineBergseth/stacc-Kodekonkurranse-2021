@@ -16,10 +16,6 @@ def get_single_asset(asset_contract_address, token_id):
     df = pd.json_normalize(data)
     df = pd.DataFrame(df)
     df_orders = pd.json_normalize(data['orders'])
-    # convert values to float/int to calculate prices later
-    df_orders['current_price'] = df_orders['current_price'].astype(float)
-    df_orders['payment_token_contract.usd_price'] = df_orders['payment_token_contract.usd_price'].astype(float)
-    df_orders['quantity'] = df_orders['quantity'].astype(int)
     pd.set_option('display.max_colwidth', None)  # extend colwidth to display whole value, instead of partial values
     return df, df_orders
 
@@ -52,28 +48,62 @@ def create_card(card_img, card_title, token_id, asset_contract_address):
 
 
 def gen_traits(asset):
-    # print(asset.columns)
-    trait_cards = []
-    for trait in asset['traits']:
-        # print(trait)
-        card = dbc.Card(
-            dbc.CardBody(
-                [
-                    # html.H4(asset['traits.value'][trait], className="card-title"),
-                    # html.H6(asset['traits.trait_type'][trait], className="card-subtitle"),
-                    html.P(
-                        "Some quick example text",
-                        className="card-text",
-                    ),
-                ],
-                className="card-body",
-            ),
-            # style={"width": "18rem"},
-            className="card border-info col",
+    if asset["traits"].to_string(index=False) == '[]':  # maybe not the prettiest way to check if traits exists
+        return html.P("This NFT has no traits")
+    else:
+        asset_traits = pd.json_normalize(asset['traits']).unstack().apply(pd.Series)
+        asset_traits['trait_count'] = round(asset_traits['trait_count'].astype(float)/100)
+        trait_cards = []
+        for trait in asset_traits.index:
+            percent = asset_traits['trait_count'][trait]
+            card = dbc.Card(
+                dbc.CardBody(
+                    [
+                        html.H6(asset_traits['trait_type'][trait], className="card-subtitle text-info text-center"),
+                        html.H4(asset_traits['value'][trait], className="card-title text-center"),
+                        html.P(
+                            f"{percent}% have this trait",
+                            className="card-text text-muted text-center",
+                        ),
+                    ],
+                    className="card-body",
+                ),
+                className="card border-info col",
+            )
+            trait_cards.append(card)
+        return html.Div(trait_cards, className="col_card_grid row row-cols-3")
+
+
+def calculate_price(asset_orders):
+    if 'current_price' in asset_orders.columns:
+        current_price = (
+                    asset_orders['current_price'][0] / pow(10, asset_orders['payment_token_contract.decimals'][0]))
+        current_price_usd = (((asset_orders['current_price'][0] / pow(10, asset_orders[
+            'payment_token_contract.decimals'][0])) * asset_orders['payment_token_contract.usd_price'][0]) /
+                             asset_orders['quantity'][0])
+        return dbc.ListGroupItem(
+            [
+                html.H5('Current price'),
+                html.Div([
+                    html.Img(src='{url}'.format(url=asset_orders['payment_token_contract.image_url'][0]),
+                             id="price_symbol"),
+                    html.Small(current_price),
+                    html.Small(f'(${current_price_usd})'),
+                    dbc.Tooltip(asset_orders['payment_token_contract.symbol'][0],
+                                target="price_symbol",
+                                ),
+                ]),
+            ],
         )
-        trait_cards.append(card)
-        # asset['traits.trait_count'][trait] #round up/down
-    return html.Div(trait_cards, className="col_card_grid row row-cols-4")
+    else:
+        return dbc.ListGroupItem(
+            [
+                html.H5('Current price'),
+                html.Div([
+                    html.Small("No bids yet"),
+                ]),
+            ],
+        )
 
 
 def create_layout(url_query):
@@ -82,11 +112,13 @@ def create_layout(url_query):
     token_id = url_query['token_id']
     dcc.Location(id='url', refresh=False),
     asset, asset_orders = get_single_asset(asset_contract_address, token_id)
+    if 'current_price' in asset_orders.columns:
+        # if current bids exists, convert values to float/int to calculate prices
+        asset_orders['current_price'] = asset_orders['current_price'].astype(float)
+        asset_orders['payment_token_contract.usd_price'] = asset_orders['payment_token_contract.usd_price'].astype(
+            float)
+        asset_orders['quantity'] = asset_orders['quantity'].astype(int)
 
-    current_price = (asset_orders['current_price'][0] / pow(10, asset_orders['payment_token_contract.decimals'][0]))
-    current_price_usd = (((asset_orders['current_price'][0] / pow(10,
-                                                                  asset_orders['payment_token_contract.decimals'][0])) *
-                          asset_orders['payment_token_contract.usd_price'][0]) / asset_orders['quantity'][0])
     fav_btn_heart = html.Button(id='fav_btn_hrt', className="fav-btn-hrt",
                                 children=[html.Img(
                                     src='data:image/svg+xml;base64,'
@@ -130,27 +162,10 @@ def create_layout(url_query):
     list_group = dbc.ListGroup(
         [
             dbc.ListGroupItem(
-                [
                     html.H5(asset['name']),
-                    html.Small(asset['token_id']),
-                ],
 
             ),
-            dbc.ListGroupItem(
-                [
-                    html.H5('Current price'),
-                    html.Div([
-                        html.Img(src='{url}'.format(url=asset_orders['payment_token_contract.image_url'][0]),
-                                 id="price_symbol"),
-                        html.Small(current_price),
-                        html.Small(f'(${current_price_usd})'),
-                        dbc.Tooltip(asset_orders['payment_token_contract.symbol'][0],
-                                    target="price_symbol",
-                                    ),
-                    ]),
-                ],
-
-            ),
+            calculate_price(asset_orders),
             dbc.ListGroupItem(
                 [
                     html.H5('Save', id="tooltip-favourites"),
@@ -164,7 +179,6 @@ def create_layout(url_query):
                 target="tooltip-favourites",
             ),
         ],
-        horizontal="lg",
     )
 
     card = dbc.Card(
@@ -178,12 +192,12 @@ def create_layout(url_query):
         className="border-light",
     )
 
-    row1 = html.Tr([html.Td("Contract Address"), html.Td(asset['asset_contract.address'])])
+    address_link = html.A("{name}".format(name=asset['asset_contract.address'].to_string(index=False)), href='https://etherscan.io/address/{address}'.format(address=asset['asset_contract.address'].to_string(index=False)))
+    row1 = html.Tr([html.Td("Contract Address"), address_link])
     row2 = html.Tr([html.Td("Token ID"), html.Td(asset['token_id'])])
-    row3 = html.Tr([html.Td("Token Standard"), html.Td("")])
-    row4 = html.Tr([html.Td("Blockchain"), html.Td("")])
+    row3 = html.Tr([html.Td("Token Standard"), html.Td(asset['asset_contract.schema_name'])])
 
-    table_body = [html.Tbody([row1, row2, row3, row4])]
+    table_body = [html.Tbody([row1, row2, row3])]
 
     asset_details = html.Div(
         dbc.Accordion(
@@ -244,17 +258,6 @@ def create_layout(url_query):
     return html.Div(
         children=[
             dcc.Store(id="address_token"),
-            # HEADER
-            html.Div(id='url_path'),
-            html.Div(
-                children=[
-                    # html.H1('NFT', id='header-text'),
-                ],
-                className="header",
-            ),
-            # INFO
-            html.Div(id="content"),
-
             html.Div(
                 [
                     dbc.Row(

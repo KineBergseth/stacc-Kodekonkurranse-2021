@@ -11,6 +11,7 @@ from apps import (
     marketplace,
     nft_collections,
     asset,
+    events,
     profile,
     upload
 )
@@ -41,6 +42,8 @@ def display_page(path_name, path_href):
         params = parse_qsl(parse_result.query)
         state = dict(params)
         return asset.create_layout(state)
+    elif path_name == "/events":
+        return events.create_layout()
     elif path_name == "/profile":
         return profile.create_layout()
     elif path_name == "/upload":

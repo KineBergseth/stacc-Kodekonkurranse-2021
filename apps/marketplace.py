@@ -14,12 +14,23 @@ def convert_slugs(snake_case):
     return snake_case.replace("-", " ").title()
 
 
+def convert_price(price):
+    """
+    Convert currency value from WEI to ETH if its not nan
+    :param price:
+    :return:
+    """
+    if pd.isna(price):
+        return price
+    else:
+        return f"{(price / pow(10, 18))} ETH"
+
+
 def get_collection_slug():
     url = "https://api.opensea.io/api/v1/collections?offset=0&limit=300"
     response = requests.request("GET", url)
     data = response.json()
     df = pd.json_normalize(data['collections'])
-    # only need a certain set of columns
     df = pd.DataFrame(df)
     collection = df['slug'].tolist()
     return collection
@@ -35,6 +46,9 @@ def get_assets(order_by, order_direction, offset, limit, collection):
     col_list = ['id', 'token_id', 'name', 'image_url', 'collection.name', 'last_sale.total_price',
                 'asset_contract.address']
     df = pd.DataFrame(df, columns=col_list)
+    # convert price from last sale to float, so i can do math
+    df['last_sale.total_price'] = df['last_sale.total_price'].astype(float)
+    df['last_sale.total_price'] = df['last_sale.total_price'].apply(convert_price)
     return df
 
 

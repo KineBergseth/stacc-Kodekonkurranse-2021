@@ -6,6 +6,7 @@ def Navbar():
         children=[
             dbc.NavItem(dbc.NavLink("Marketplace", href="/marketplace")),
             dbc.NavItem(dbc.NavLink("Collections", href="/collections")),
+            dbc.NavItem(dbc.NavLink("Activity", href="/events")),
             dbc.NavItem(dbc.NavLink("Upload NFT", href="/upload")),
             dbc.NavItem(dbc.NavLink("Profile", href="/profile")),
 
