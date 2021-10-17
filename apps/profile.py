@@ -1,53 +1,52 @@
 import requests
 import pandas as pd
-import dash
 import json
-import dash_bootstrap_components as dbc
-from dash.exceptions import PreventUpdate
-from dash import Dash, callback, html, dcc, dash_table, Input, Output, State, MATCH, ALL
-from dash.dash_table.Format import Format, Scheme, Sign, Symbol
+from dash import html, dcc, Input, Output
+from dash.dash_table.Format import Format, Symbol
 from dash import dash_table
 import random
-
 from app import app
-
-user = html.P('lizardlover23')
-
-
-# usename
-# @username
-# 0x88af555yhj65j4gh4j6.............
-# bio
-# website
-# profile img | following x | followers x
 
 
 def create_layout():
+    """
+    Create html display with all components
+    :return: html with components
+    """
     return html.Div(
         children=[
-            html.H1('User profile'),
+            html.H1('lizardlover23 profile', className="mt-3"),
+            html.P('Welcome back @lizardlover23', className="text-muted"),
             html.P(['Here you can find an overview of your activity, such as your favorites assets, the bids you have '
                     'placed, and the NFTs you have upload and put for sale.', html.Br(),
                     'The display table has a built-in '
                     'sorting system']),
-            html.Div(id="output"),
             dcc.Tabs(id="profile-tabs", children=[
                 dcc.Tab(label='Favorites', value='fav-tab'),
                 dcc.Tab(label='Your active bids', value='bid-tab'),
                 dcc.Tab(label='Your uploaded NFTs', value='upload-tab'),
             ],
-                     className=""),
+                     className="nav nav-tabs",
+                     ),
             html.Div(id='profile-content-tabs')
         ])
 
 
 def add_imgmarkdown(url):
+    """
+    Add html to link to display image
+    :param url: NFT image link
+    :return: link in html element
+    """
     return "<img src='{url}' height='75' />".format(url=url)
 
 
 def generate_table(data):
-    # ctx = dash.callback_context
-
+    """
+    Generate datatable with data about NFTs added to collection
+    :param data: dataframe with NFT data
+    :return: HTML to render table
+    """
     return dash_table.DataTable(
         id='table',
         data=data.to_dict('records'),
@@ -68,6 +67,12 @@ def generate_table(data):
 
 
 def get_asset(asset_contract_address, token_id):
+    """
+    Get a perticular NFT
+    :param asset_contract_address:
+    :param token_id:
+    :return: json data about NFT
+    """
     url = "https://api.opensea.io/api/v1/asset/{asset_contract_address}/{token_id}/".format(
         asset_contract_address=asset_contract_address, token_id=token_id)
     response = requests.request("GET", url)
@@ -75,6 +80,11 @@ def get_asset(asset_contract_address, token_id):
 
 
 def get_NFTs(df):
+    """
+    For all NFTs in a dataframe, get more data from api
+    :param df: dataframe with local stored data
+    :return: dataframe with asset data
+    """
     bids = []
     for item in df.index:
         bids.append(get_asset(df['asset_contract_address'][item], df['token_id'][item]))
@@ -87,11 +97,19 @@ def get_NFTs(df):
 
 
 def random_bid_gen():
+    """
+    Generate random number to add as fake bid on the users uploaded NFTS
+    :return: int between 0-40
+    """
     random_bid = random.randint(0, 40)
     return random_bid
 
 
 def tab_favs():
+    """
+    Get favourite data from json and convert to df and create table
+    :return: dataframe with NFT data
+    """
     f = open('favourites.json', )
     fav_data = json.load(f)
     df_fav = pd.DataFrame(fav_data['favourites'])
@@ -100,6 +118,10 @@ def tab_favs():
 
 
 def tab_bids():
+    """
+    Get bid data from json and convert to df and create table
+    :return: dataframe with NFT data
+    """
     f = open('bids.json', )
     bid_data = json.load(f)
     df_bid = pd.DataFrame(bid_data['bids'])
@@ -109,6 +131,10 @@ def tab_bids():
 
 
 def tab_uploads():
+    """
+    Get data about uploaded NFTs from json and convert to df and create table
+    :return: dataframe with NFT data
+    """
     f = open('uploads.json', )
     uploaded_data = json.load(f)
     df_uploads = pd.DataFrame(uploaded_data['uploaded_nfts'])
@@ -127,22 +153,14 @@ def tab_uploads():
 @app.callback(Output('profile-content-tabs', 'children'),
               Input('profile-tabs', 'value'))
 def render_tabcontent(tab):
+    """
+    Render tab content based on user click input
+    :param tab: tab id
+    :return: call function to get correct data and generate datatable
+    """
     if tab == 'fav-tab':
         return tab_favs()
     elif tab == 'bid-tab':
         return tab_bids()
     elif tab == 'upload-tab':
         return tab_uploads()
-
-
-@app.callback(Output('output', 'children'),
-              [Input('table', 'data_previous')],
-              [State('table', 'data')])
-def show_removed_rows(previous, current):
-    if previous is None:
-        dash.exceptions.PreventUpdate()
-    else:
-        return [f'Just removed {row}' for row in previous if row not in current]
-#todo, remove from json file
-#'asset_contract_address': '0xa2480eb41dd1f2b0abade9f305826c544d47f696',
-# 'token_id': '9964'

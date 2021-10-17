@@ -1,19 +1,18 @@
-import dash
 from app import app
 import datetime
 import json
-import random
-import base64
-import os
 import string
 import secrets
 from datetime import datetime
-import pandas as pd
 import dash_bootstrap_components as dbc
-from dash import Dash, callback, html, dcc, dash_table, Input, Output, State, MATCH, ALL
+from dash import html, dcc, Input, Output
 
 
 def create_layout():
+    """
+    Create layout, input form for image, name and description of a NFT
+    :return: html to render content
+    """
     upload_nft_img = html.Div([
         dcc.Upload(
             id='upload-nft-img',
@@ -21,9 +20,7 @@ def create_layout():
                 'Drag & drop or ',
                 html.A('Select file to upload')
             ]),
-            style={  # todo make resposive
-                'width': '100%',
-                'height': '60px',
+            style={
                 'lineHeight': '60px',
                 'borderWidth': '1px',
                 'borderStyle': 'dashed',
@@ -31,6 +28,7 @@ def create_layout():
                 'textAlign': 'center',
                 'margin': '10px'
             },
+            className=".w-50 mb-3",
             multiple=False
         )
     ])
@@ -60,7 +58,7 @@ def create_layout():
     return html.Div(
         children=[
             html.Div(
-                html.H1('Upload NFT', id='header-text'),
+                html.H1('Upload NFT', className='header-text text-center mt-3'),
                 className="header",
             ),
             upload_nft_img,
@@ -90,22 +88,28 @@ def random_data_gen(length):
     [Input("upload_nft", "n_clicks"),
      Input("nft-name", "value"),
      Input("nft-desc", "value"),
-     Input('upload-nft-img', 'filename'),
      Input('upload-nft-img', 'contents')
      ]
 )
-def add_favourite(n_upload, name, description, filename, image_url):
-
+def add_nft(n_upload, name, description, image_url):
+    """
+    Add NFT to local json file with all data
+    :param n_upload: upload button click event
+    :param name: name input from formgroup
+    :param description: description of NFT
+    :param image_url: base64 encoded image
+    :return: html to render img and table with recap of inputted and generated data
+    """
     if n_upload:
         if image_url is None:
             return html.P("Please upload nft file")
         else:
-            id = random_data_gen(8)
+            nft_id = random_data_gen(8)  # generate data
             token_id = random_data_gen(60)
             contract_address = f"0x{random_data_gen(40)}"
-            date = datetime.now()
+            date = datetime.now()  # get current time and date
             upload_asset = {
-                "id": id,
+                "id": nft_id,
                 "token_id": token_id,
                 "image_url": image_url,
                 "name": name,
@@ -127,6 +131,7 @@ def add_favourite(n_upload, name, description, filename, image_url):
             }
             write_json(upload_asset, 'uploaded_nfts', 'uploads.json')
 
+            # create table rows to display all NFT data in
             row1 = html.Tr([html.Td("id"), html.Td(upload_asset['id'])])
             row2 = html.Tr([html.Td("token id"), html.Td(upload_asset['token_id'])])
             row3 = html.Tr([html.Td("name"), html.Td(upload_asset['name'])])
@@ -141,12 +146,18 @@ def add_favourite(n_upload, name, description, filename, image_url):
             row12 = html.Tr([html.Td("owner"), html.Td(upload_asset['owner']['user']['username'])])
             table_body = [html.Tbody([row1, row2, row3, row4, row5, row6, row7, row8, row9, row10, row11, row12])]
             return html.Div([
-                html.Img(src=image_url),
+                html.Img(src=image_url, className=".w-50"),
                 dbc.Table(table_body, bordered=True)
             ])
 
 
 def write_json(new_json, name, filename):
+    """
+    Write NFT data as object to json file
+    :param new_json: NFT in json format
+    :param name: value of name in name_value par list
+    :param filename: filename of file its stored in
+    """
     with open(filename, 'r+') as file:
         file_data = json.load(file)  # load data into dict
         file_data[name].append(new_json)

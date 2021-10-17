@@ -13,11 +13,11 @@ https://stacc-nft.herokuapp.com/
 The app is written in Python with Dash framework. The app is also available on heroku.
 If you want to run it locally follow the steps below:
 
-###Prerequisites
+### Prerequisites
 - Python 3.X 
 - Internet connection
 
-###Setup
+### Setup
 Start by opening your preferred terminal, and navigate to this project's directory.
 To be able to run the code, you need to install the required python modules.
 You install the required libraries by writing the following in your terminal:
